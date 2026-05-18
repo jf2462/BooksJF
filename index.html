@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Guardian · 100 Best Novels of All Time</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── TOKENS ── */
+  body.dark {
+    --bg:        #0f0e0c;
+    --bg2:       #1a1815;
+    --bg3:       #141210;
+    --border:    #2a2420;
+    --border2:   #1e1c19;
+    --text:      #e8e0d0;
+    --text2:     #7a6f60;
+    --text3:     #4a4038;
+    --accent:    #c8a96e;
+    --accent2:   #8a6a30;
+    --heading:   #f5e6c8;
+    --rank-muted:#2e2a24;
+  }
+  body.light {
+    --bg:        #faf8f4;
+    --bg2:       #f0ece4;
+    --bg3:       #f5f2ec;
+    --border:    #ddd8ce;
+    --border2:   #e8e4dc;
+    --text:      #2a2218;
+    --text2:     #7a6a58;
+    --text3:     #b0a898;
+    --accent:    #8a5a18;
+    --accent2:   #c8a96e;
+    --heading:   #1a1208;
+    --rank-muted:#c8c0b4;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Libre Baskerville', serif;
+    min-height: 100vh;
+    font-size: 13px;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 24px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    transition: background 0.25s, border-color 0.25s;
+  }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 900; color: var(--heading); margin-bottom: 3px; }
+  .header p  { font-size: 10px; color: var(--text3); letter-spacing: 1.5px; text-transform: uppercase; }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 10px;
+    color: var(--text2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .toggle-icon { font-size: 13px; }
+
+  /* ── CONTROLS ── */
+  .controls { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .search-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 12px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 12px;
+    width: 210px;
+    outline: none;
+    transition: border-color 0.2s, background 0.25s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--text3); }
+
+  .sort-btn {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 7px 10px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .sort-btn:hover, .sort-btn.active { background: var(--bg3); color: var(--accent); border-color: var(--accent); }
+  .count-label { font-size: 10px; color: var(--text3); margin-left: auto; }
+
+  /* ── LEGEND ── */
+  .lang-legend {
+    display: flex; gap: 7px; flex-wrap: wrap;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border2);
+    background: var(--bg);
+    transition: background 0.25s, border-color 0.25s;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 10px; color: var(--text2);
+    cursor: pointer; padding: 3px 7px;
+    border: 1px solid transparent; transition: all 0.15s;
+  }
+  .legend-item:hover, .legend-item.active { border-color: var(--border); color: var(--accent); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend-hint { font-size: 10px; color: var(--text3); margin-left: auto; }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    font-family: 'Playfair Display', serif;
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text3); padding: 12px 12px;
+    border-bottom: 1px solid var(--border2);
+    text-align: left; cursor: pointer; user-select: none; white-space: nowrap;
+    background: var(--bg);
+    transition: color 0.2s, background 0.25s;
+  }
+  thead th:hover { color: var(--accent); }
+  thead th.sorted { color: var(--accent); }
+  thead th:first-child { width: 52px; text-align: center; }
+  thead th:nth-child(4) { text-align: center; width: 95px; }
+  thead th:nth-child(3) { width: 90px; text-align: center; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border2);
+    transition: background 0.1s;
+  }
+  tbody tr:hover { background: var(--bg3); }
+  tbody tr.top3-row { border-left: 3px solid var(--lang-color, #888); }
+
+  td { padding: 10px 12px; vertical-align: middle; transition: none; }
+
+  .rank { text-align: center; font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--rank-muted); }
+  .rank.top10 { color: var(--accent); }
+  .rank.top25 { color: var(--accent2); }
+
+  .title-col .title { font-family: 'Playfair Display', serif; font-size: 13px; color: var(--heading); line-height: 1.3; }
+  .title-col .author { font-size: 11px; color: var(--text2); font-style: italic; margin-top: 1px; }
+
+  .top3-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 9px; padding: 1px 5px; margin-left: 6px;
+    letter-spacing: 0.5px; vertical-align: middle; opacity: 0.9;
+  }
+
+  .lang-cell { text-align: center; }
+  .lang-tag { display: inline-block; font-size: 9px; padding: 2px 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  .rating-cell { text-align: center; }
+  .rating-inner { display: inline-flex; align-items: center; gap: 6px; }
+  .rating-num { font-family: 'Playfair Display', serif; font-size: 13px; color: var(--accent); min-width: 28px; text-align: right; }
+  .bar-bg { background: var(--border); height: 3px; width: 48px; border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; }
+
+  .no-results { padding: 40px; text-align: center; color: var(--text3); font-style: italic; }
+</style>
+</head>
+<body class="dark">
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>The Guardian · 100 Best Novels of All Time</h1>
+      <p>Mayo 2026 · 172 autores, críticos y académicos · Top 3 por idioma destacado</p>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+      <span class="toggle-icon" id="toggle-icon">☀️</span>
+      <span id="toggle-label">Modo claro</span>
+    </button>
+  </div>
+  <div class="controls">
+    <input class="search-box" type="text" id="search" placeholder="Buscar título o autor..." oninput="render()">
+    <button class="sort-btn active" id="btn-rank"   onclick="setSort('rank')">Ranking</button>
+    <button class="sort-btn"        id="btn-rating" onclick="setSort('rating')">Goodreads</button>
+    <button class="sort-btn"        id="btn-title"  onclick="setSort('title')">Título A–Z</button>
+    <button class="sort-btn"        id="btn-lang"   onclick="setSort('lang')">Idioma</button>
+    <span class="count-label" id="count-label">100 títulos</span>
+  </div>
+</div>
+
+<div class="lang-legend" id="lang-legend"></div>
+
+<table>
+  <thead>
+    <tr>
+      <th onclick="setSort('rank')">#</th>
+      <th onclick="setSort('title')">Título / Autor</th>
+      <th onclick="setSort('lang')">Idioma</th>
+      <th onclick="setSort('rating')">Goodreads</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+<div class="no-results" id="no-results" style="display:none">Sin resultados.</div>
+
+<script>
+const LANGS = {
+  en: { label:'Inglés',   color:'#5b8dd9' },
+  ru: { label:'Ruso',     color:'#d95b5b' },
+  fr: { label:'Francés',  color:'#9b5bd9' },
+  de: { label:'Alemán',   color:'#d9915b' },
+  es: { label:'Español',  color:'#c8b040' },
+  it: { label:'Italiano', color:'#5bd97a' },
+  ko: { label:'Coreano',  color:'#d95bb8' },
+};
+
+const raw = [
+  {rank:1,  title:"Middlemarch",                       author:"George Eliot",                 rating:4.28, lang:'en'},
+  {rank:2,  title:"Beloved",                           author:"Toni Morrison",                rating:4.07, lang:'en'},
+  {rank:3,  title:"Ulysses",                           author:"James Joyce",                  rating:3.73, lang:'en'},
+  {rank:4,  title:"To the Lighthouse",                 author:"Virginia Woolf",               rating:3.93, lang:'en'},
+  {rank:5,  title:"In Search of Lost Time",            author:"Marcel Proust",                rating:4.11, lang:'fr'},
+  {rank:6,  title:"Anna Karenina",                     author:"Leo Tolstoy",                  rating:4.08, lang:'ru'},
+  {rank:7,  title:"War and Peace",                     author:"Leo Tolstoy",                  rating:4.11, lang:'ru'},
+  {rank:8,  title:"Jane Eyre",                         author:"Charlotte Brontë",             rating:4.18, lang:'en'},
+  {rank:9,  title:"Pride and Prejudice",               author:"Jane Austen",                  rating:4.28, lang:'en'},
+  {rank:10, title:"Madame Bovary",                     author:"Gustave Flaubert",             rating:3.82, lang:'fr'},
+  {rank:11, title:"The Great Gatsby",                  author:"F. Scott Fitzgerald",          rating:3.93, lang:'en'},
+  {rank:12, title:"Bleak House",                       author:"Charles Dickens",              rating:4.12, lang:'en'},
+  {rank:13, title:"Emma",                              author:"Jane Austen",                  rating:4.01, lang:'en'},
+  {rank:14, title:"Mrs Dalloway",                      author:"Virginia Woolf",               rating:3.93, lang:'en'},
+  {rank:15, title:"Moby-Dick",                         author:"Herman Melville",              rating:3.51, lang:'en'},
+  {rank:16, title:"Nineteen Eighty-Four",              author:"George Orwell",                rating:4.19, lang:'en'},
+  {rank:17, title:"One Hundred Years of Solitude",     author:"Gabriel García Márquez",       rating:4.06, lang:'es'},
+  {rank:18, title:"Persuasion",                        author:"Jane Austen",                  rating:4.17, lang:'en'},
+  {rank:19, title:"Tristram Shandy",                   author:"Laurence Sterne",              rating:3.59, lang:'en'},
+  {rank:20, title:"Wuthering Heights",                 author:"Emily Brontë",                 rating:3.97, lang:'en'},
+  {rank:21, title:"The Portrait of a Lady",            author:"Henry James",                  rating:3.98, lang:'en'},
+  {rank:22, title:"Things Fall Apart",                 author:"Chinua Achebe",                rating:3.93, lang:'en'},
+  {rank:23, title:"Midnight's Children",               author:"Salman Rushdie",               rating:3.91, lang:'en'},
+  {rank:24, title:"The Remains of the Day",            author:"Kazuo Ishiguro",               rating:4.05, lang:'en'},
+  {rank:25, title:"Lolita",                            author:"Vladimir Nabokov",             rating:3.88, lang:'en'},
+  {rank:26, title:"Don Quixote",                       author:"Miguel de Cervantes",          rating:3.86, lang:'es'},
+  {rank:27, title:"The Trial",                         author:"Franz Kafka",                  rating:3.97, lang:'de'},
+  {rank:28, title:"The Brothers Karamazov",            author:"Fyodor Dostoevsky",            rating:4.33, lang:'ru'},
+  {rank:29, title:"Pale Fire",                         author:"Vladimir Nabokov",             rating:4.08, lang:'en'},
+  {rank:30, title:"Frankenstein",                      author:"Mary Shelley",                 rating:3.82, lang:'en'},
+  {rank:31, title:"The Prime of Miss Jean Brodie",     author:"Muriel Spark",                 rating:3.90, lang:'en'},
+  {rank:32, title:"The God of Small Things",           author:"Arundhati Roy",                rating:4.18, lang:'en'},
+  {rank:33, title:"David Copperfield",                 author:"Charles Dickens",              rating:4.12, lang:'en'},
+  {rank:34, title:"Wolf Hall",                         author:"Hilary Mantel",                rating:4.01, lang:'en'},
+  {rank:35, title:"Great Expectations",                author:"Charles Dickens",              rating:3.89, lang:'en'},
+  {rank:36, title:"The Handmaid's Tale",               author:"Margaret Atwood",              rating:4.12, lang:'en'},
+  {rank:37, title:"Invisible Man",                     author:"Ralph Ellison",                rating:3.98, lang:'en'},
+  {rank:38, title:"The Age of Innocence",              author:"Edith Wharton",                rating:3.96, lang:'en'},
+  {rank:39, title:"Their Eyes Were Watching God",      author:"Zora Neale Hurston",           rating:4.02, lang:'en'},
+  {rank:40, title:"Song of Solomon",                   author:"Toni Morrison",                rating:3.99, lang:'en'},
+  {rank:41, title:"Heart of Darkness",                 author:"Joseph Conrad",                rating:3.60, lang:'en'},
+  {rank:42, title:"The Magic Mountain",                author:"Thomas Mann",                  rating:4.01, lang:'de'},
+  {rank:43, title:"Housekeeping",                      author:"Marilynne Robinson",           rating:3.90, lang:'en'},
+  {rank:44, title:"Giovanni's Room",                   author:"James Baldwin",                rating:4.22, lang:'en'},
+  {rank:45, title:"The Golden Notebook",               author:"Doris Lessing",                rating:3.89, lang:'en'},
+  {rank:46, title:"The Leopard",                       author:"Giuseppe Tomasi di Lampedusa", rating:4.12, lang:'it'},
+  {rank:47, title:"Vanity Fair",                       author:"William Makepeace Thackeray",  rating:3.89, lang:'en'},
+  {rank:48, title:"The Metamorphosis",                 author:"Franz Kafka",                  rating:4.01, lang:'de'},
+  {rank:49, title:"A Fine Balance",                    author:"Rohinton Mistry",              rating:4.39, lang:'en'},
+  {rank:50, title:"Wide Sargasso Sea",                 author:"Jean Rhys",                    rating:3.70, lang:'en'},
+  {rank:51, title:"My Brilliant Friend",               author:"Elena Ferrante",               rating:4.22, lang:'it'},
+  {rank:52, title:"The Golden Bowl",                   author:"Henry James",                  rating:3.71, lang:'en'},
+  {rank:53, title:"The Transit of Venus",              author:"Shirley Hazzard",              rating:3.88, lang:'en'},
+  {rank:54, title:"Orlando",                           author:"Virginia Woolf",               rating:3.99, lang:'en'},
+  {rank:55, title:"The Waves",                         author:"Virginia Woolf",               rating:3.97, lang:'en'},
+  {rank:56, title:"Mansfield Park",                    author:"Jane Austen",                  rating:3.88, lang:'en'},
+  {rank:57, title:"The Sound and the Fury",            author:"William Faulkner",             rating:3.83, lang:'en'},
+  {rank:58, title:"Disgrace",                          author:"J.M. Coetzee",                 rating:3.90, lang:'en'},
+  {rank:59, title:"Never Let Me Go",                   author:"Kazuo Ishiguro",               rating:3.84, lang:'en'},
+  {rank:60, title:"Howards End",                       author:"E.M. Forster",                 rating:4.00, lang:'en'},
+  {rank:61, title:"The Rings of Saturn",               author:"W.G. Sebald",                  rating:4.09, lang:'de'},
+  {rank:62, title:"Half of a Yellow Sun",              author:"Chimamanda Ngozi Adichie",     rating:4.27, lang:'en'},
+  {rank:63, title:"White Teeth",                       author:"Zadie Smith",                  rating:3.84, lang:'en'},
+  {rank:64, title:"The Good Soldier",                  author:"Ford Madox Ford",              rating:3.83, lang:'en'},
+  {rank:65, title:"The Color Purple",                  author:"Alice Walker",                 rating:4.21, lang:'en'},
+  {rank:66, title:"The Master and Margarita",          author:"Mikhail Bulgakov",             rating:4.32, lang:'ru'},
+  {rank:67, title:"The Man Without Qualities",         author:"Robert Musil",                 rating:4.10, lang:'de'},
+  {rank:68, title:"Blood Meridian",                    author:"Cormac McCarthy",              rating:3.93, lang:'en'},
+  {rank:69, title:"Crime and Punishment",              author:"Fyodor Dostoevsky",            rating:4.25, lang:'ru'},
+  {rank:70, title:"Jude the Obscure",                  author:"Thomas Hardy",                 rating:3.87, lang:'en'},
+  {rank:71, title:"Kindred",                           author:"Octavia Butler",               rating:4.29, lang:'en'},
+  {rank:72, title:"Our Mutual Friend",                 author:"Charles Dickens",              rating:4.10, lang:'en'},
+  {rank:73, title:"Austerlitz",                        author:"W.G. Sebald",                  rating:4.07, lang:'de'},
+  {rank:74, title:"Nervous Conditions",                author:"Tsitsi Dangarembga",           rating:4.09, lang:'en'},
+  {rank:75, title:"The Bluest Eye",                    author:"Toni Morrison",                rating:3.97, lang:'en'},
+  {rank:76, title:"Dracula",                           author:"Bram Stoker",                  rating:4.02, lang:'en'},
+  {rank:77, title:"The Rainbow",                       author:"D.H. Lawrence",                rating:3.76, lang:'en'},
+  {rank:78, title:"A House for Mr Biswas",             author:"V.S. Naipaul",                 rating:4.10, lang:'en'},
+  {rank:79, title:"Go Tell It on the Mountain",        author:"James Baldwin",                rating:4.00, lang:'en'},
+  {rank:80, title:"Rebecca",                           author:"Daphne du Maurier",            rating:4.23, lang:'en'},
+  {rank:81, title:"Buddenbrooks",                      author:"Thomas Mann",                  rating:4.06, lang:'de'},
+  {rank:82, title:"The End of the Affair",             author:"Graham Greene",                rating:3.93, lang:'en'},
+  {rank:83, title:"A Farewell to Arms",                author:"Ernest Hemingway",             rating:3.83, lang:'en'},
+  {rank:84, title:"The Talented Mr Ripley",            author:"Patricia Highsmith",           rating:4.07, lang:'en'},
+  {rank:85, title:"The Vegetarian",                    author:"Han Kang",                     rating:3.72, lang:'ko'},
+  {rank:86, title:"The Turn of the Screw",             author:"Henry James",                  rating:3.84, lang:'en'},
+  {rank:87, title:"The Line of Beauty",                author:"Alan Hollinghurst",            rating:3.82, lang:'en'},
+  {rank:88, title:"Ragtime",                           author:"E.L. Doctorow",                rating:3.90, lang:'en'},
+  {rank:89, title:"The Left Hand of Darkness",         author:"Ursula K. Le Guin",            rating:4.08, lang:'en'},
+  {rank:90, title:"Jacob's Room",                      author:"Virginia Woolf",               rating:3.73, lang:'en'},
+  {rank:91, title:"Life and Fate",                     author:"Vasily Grossman",              rating:4.48, lang:'ru'},
+  {rank:92, title:"Sentimental Education",             author:"Gustave Flaubert",             rating:3.70, lang:'fr'},
+  {rank:93, title:"Invisible Cities",                  author:"Italo Calvino",                rating:4.16, lang:'it'},
+  {rank:94, title:"The Known World",                   author:"Edward P. Jones",              rating:3.83, lang:'en'},
+  {rank:95, title:"The Return of the Native",          author:"Thomas Hardy",                 rating:3.71, lang:'en'},
+  {rank:96, title:"Pedro Páramo",                      author:"Juan Rulfo",                   rating:3.97, lang:'es'},
+  {rank:97, title:"Catch-22",                          author:"Joseph Heller",                rating:4.01, lang:'en'},
+  {rank:98, title:"The Road",                          author:"Cormac McCarthy",              rating:4.00, lang:'en'},
+  {rank:99, title:"The Go-Between",                    author:"L.P. Hartley",                 rating:3.91, lang:'en'},
+  {rank:100,title:"My Ántonia",                        author:"Willa Cather",                 rating:3.90, lang:'en'},
+];
+
+// Top 3 per language
+const top3ByLang = {};
+Object.keys(LANGS).forEach(lk => {
+  top3ByLang[lk] = raw.filter(b => b.lang === lk).sort((a,b) => a.rank - b.rank).slice(0,3).map(b => b.rank);
+});
+function getTop3Pos(book) {
+  const arr = top3ByLang[book.lang];
+  return arr ? arr.indexOf(book.rank) : -1;
+}
+const MEDALS = ['🥇','🥈','🥉'];
+
+let sortKey = 'rank', sortDir = 1, activeLang = null, isDark = true;
+
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('toggle-icon').textContent  = isDark ? '☀️' : '🌙';
+  document.getElementById('toggle-label').textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+}
+
+function setSort(key) {
+  if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  const map = {rank:'btn-rank', rating:'btn-rating', title:'btn-title', lang:'btn-lang'};
+  if (map[key]) document.getElementById(map[key]).classList.add('active');
+  render();
+}
+
+function toggleLang(lk) {
+  activeLang = activeLang === lk ? null : lk;
+  document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active'));
+  if (activeLang) document.querySelector(`.legend-item[data-lang="${activeLang}"]`).classList.add('active');
+  render();
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  let data = [...raw];
+  if (q) data = data.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
+  if (activeLang) data = data.filter(b => b.lang === activeLang);
+  data.sort((a,b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (sortKey === 'title' || sortKey === 'lang') return av.localeCompare(bv) * sortDir;
+    return (av - bv) * sortDir;
+  });
+
+  const tbody = document.getElementById('tbody');
+  document.getElementById('no-results').style.display = data.length ? 'none' : 'block';
+  document.getElementById('count-label').textContent = data.length + ' título' + (data.length !== 1 ? 's' : '');
+  if (!data.length) { tbody.innerHTML = ''; return; }
+
+  tbody.innerHTML = data.map(b => {
+    const lc = LANGS[b.lang].color;
+    const t3 = getTop3Pos(b);
+    const isTop3 = t3 >= 0;
+    const rankClass = b.rank <= 10 ? 'top10' : b.rank <= 25 ? 'top25' : '';
+    const rowClass = isTop3 ? 'top3-row' : '';
+    const barW = Math.round(((b.rating - 3.0) / 2.0) * 100);
+    const badge = isTop3
+      ? `<span class="top3-badge" style="background:${lc}22;color:${lc};border:1px solid ${lc}44">${MEDALS[t3]} #${t3+1} ${LANGS[b.lang].label}</span>`
+      : '';
+    return `<tr class="${rowClass}" style="--lang-color:${lc}">
+      <td class="rank ${rankClass}">${b.rank}</td>
+      <td class="title-col">
+        <div class="title">${b.title}${badge}</div>
+        <div class="author">${b.author}</div>
+      </td>
+      <td class="lang-cell">
+        <span class="lang-tag" style="background:${lc}18;color:${lc};border:1px solid ${lc}33">${LANGS[b.lang].label}</span>
+      </td>
+      <td class="rating-cell">
+        <div class="rating-inner">
+          <span class="rating-num">${b.rating.toFixed(2)}</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:${barW}%;background:linear-gradient(90deg,${lc}88,${lc})"></div></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// Build legend
+document.getElementById('lang-legend').innerHTML =
+  Object.entries(LANGS).map(([lk, lv]) => {
+    const count = raw.filter(b => b.lang === lk).length;
+    return `<div class="legend-item" data-lang="${lk}" onclick="toggleLang('${lk}')">
+      <div class="legend-dot" style="background:${lv.color}"></div>
+      ${lv.label} <span style="opacity:0.5">(${count})</span>
+    </div>`;
+  }).join('') + `<span class="legend-hint">Clic para filtrar por idioma</span>`;
+
+render();
+</script>
+</body>
+</html>
