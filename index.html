@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grandes Novelas · Guardian & Economist</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body.dark{--bg:#0f0e0c;--bg2:#1a1815;--bg3:#141210;--border:#2a2420;--border2:#1e1c19;--text:#e8e0d0;--text2:#7a6f60;--text3:#4a4038;--accent:#c8a96e;--accent2:#8a6a30;--heading:#f5e6c8;--muted:#2e2a24;--src-g:#3a6a3a;--src-e:#3a4a6a}
+body.light{--bg:#faf8f4;--bg2:#f0ece4;--bg3:#f5f2ec;--border:#ddd8ce;--border2:#e8e4dc;--text:#2a2218;--text2:#7a6a58;--text3:#b0a898;--accent:#8a5a18;--accent2:#c8a96e;--heading:#1a1208;--muted:#c8c0b4;--src-g:#2a5a2a;--src-e:#2a3a5a}
+body{background:var(--bg);color:var(--text);font-family:'Libre Baskerville',serif;min-height:100vh;font-size:13px;transition:background .25s,color .25s}
+.header{padding:20px 20px 12px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;transition:background .25s,border-color .25s}
+.header-row1{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.titles h1{font-family:'Playfair Display',serif;font-size:19px;font-weight:900;color:var(--heading);margin-bottom:2px}
+.titles p{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase}
+.header-row2{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.header-row3{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+
+/* Source toggle */
+.src-btns{display:flex;gap:0;flex-shrink:0}
+.src-btn{padding:7px 14px;font-family:'Libre Baskerville',serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text2);transition:all .2s}
+.src-btn:first-child{border-radius:0}
+.src-btn.active-g{background:#1a2e1a;color:#7ac87a;border-color:#3a6a3a}
+body.light .src-btn.active-g{background:#e8f4e8;color:#2a6a2a;border-color:#5a9a5a}
+.src-btn.active-e{background:#1a1e2e;color:#7a9ac8;border-color:#3a4a6a}
+body.light .src-btn.active-e{background:#e8ecf4;color:#2a3a7a;border-color:#4a5a9a}
+
+/* Controls */
+.search-box{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 12px;font-family:'Libre Baskerville',serif;font-size:12px;width:200px;outline:none;transition:border-color .2s,background .25s}
+.search-box:focus{border-color:var(--accent)}
+.search-box::placeholder{color:var(--text3)}
+.btn{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:7px 10px;font-family:'Libre Baskerville',serif;font-size:10px;cursor:pointer;transition:all .2s;letter-spacing:.5px;white-space:nowrap}
+.btn:hover,.btn.active{background:var(--bg3);color:var(--accent);border-color:var(--accent)}
+.count{font-size:10px;color:var(--text3);margin-left:auto}
+
+/* Theme toggle */
+.theme-btn{display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);padding:6px 11px;cursor:pointer;font-family:'Libre Baskerville',serif;font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;transition:all .2s;white-space:nowrap}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Legend */
+.legend{display:flex;gap:6px;flex-wrap:wrap;padding:9px 20px;border-bottom:1px solid var(--border2);background:var(--bg);transition:background .25s,border-color .25s}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2);cursor:pointer;padding:2px 6px;border:1px solid transparent;transition:all .15s}
+.legend-item:hover,.legend-item.active{border-color:var(--border);color:var(--accent)}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.legend-hint{font-size:10px;color:var(--text3);margin-left:auto}
+
+/* Table */
+table{width:100%;border-collapse:collapse}
+thead th{font-family:'Playfair Display',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:11px 12px;border-bottom:1px solid var(--border2);text-align:left;cursor:pointer;user-select:none;white-space:nowrap;background:var(--bg);transition:color .2s,background .25s}
+thead th:hover{color:var(--accent)}
+thead th.sorted{color:var(--accent)}
+thead th:first-child{width:52px;text-align:center}
+th.right,td.right{text-align:center}
+th.rtime{width:80px}
+th.goodreads{width:100px}
+th.lang{width:85px}
+tbody tr{border-bottom:1px solid var(--border2);transition:background .1s}
+tbody tr:hover{background:var(--bg3)}
+tbody tr.top3-row{border-left:3px solid var(--lc,#888)}
+td{padding:9px 12px;vertical-align:middle}
+
+.rank{text-align:center;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--muted)}
+.rank.t10{color:var(--accent)}
+.rank.t25{color:var(--accent2)}
+
+.t-title{font-family:'Playfair Display',serif;font-size:13px;color:var(--heading);line-height:1.3}
+.t-author{font-size:11px;color:var(--text2);font-style:italic;margin-top:1px}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:1px 5px;margin-left:6px;letter-spacing:.5px;vertical-align:middle;opacity:.9}
+.both-badge{font-size:9px;padding:1px 5px;margin-left:5px;background:rgba(200,169,110,.12);color:var(--accent);border:1px solid rgba(200,169,110,.3);vertical-align:middle;letter-spacing:.5px}
+
+.lang-tag{display:inline-block;font-size:9px;padding:2px 6px;letter-spacing:.5px;text-transform:uppercase}
+
+.gr-wrap{display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.gr-num{font-family:'Playfair Display',serif;font-size:13px;color:var(--accent);min-width:28px;text-align:right}
+.bar-bg{background:var(--border);height:3px;width:44px;border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px}
+
+.rt{font-family:'Playfair Display',serif;font-size:12px;color:var(--text2);text-align:center}
+
+.no-results{padding:40px;text-align:center;color:var(--text3);font-style:italic}
+</style>
+</head>
+<body class="dark">
+
+<div class="header">
+  <div class="header-row1">
+    <div class="titles">
+      <h1>Las Mejores Novelas de Todos los Tiempos</h1>
+      <p id="subtitle">The Guardian 2026 · 100 libros · 172 expertos</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+      <div class="src-btns">
+        <button class="src-btn active-g" id="btn-g" onclick="setSource('g')">The Guardian</button>
+        <button class="src-btn" id="btn-e" onclick="setSource('e')">The Economist</button>
+      </div>
+      <button class="theme-btn" onclick="toggleTheme()"><span id="t-icon">☀️</span><span id="t-label">Claro</span></button>
+    </div>
+  </div>
+  <div class="header-row2">
+    <input class="search-box" type="text" id="search" placeholder="Buscar título o autor…" oninput="render()">
+    <button class="btn active" id="btn-rank" onclick="setSort('rank')">Ranking</button>
+    <button class="btn" id="btn-rating" onclick="setSort('rating')">Goodreads</button>
+    <button class="btn" id="btn-title" onclick="setSort('title')">Título A–Z</button>
+    <button class="btn" id="btn-lang" onclick="setSort('lang')">Idioma</button>
+    <button class="btn" id="btn-rt" onclick="setSort('rt')" style="display:none">Lectura</button>
+    <span class="count" id="count">— títulos</span>
+  </div>
+</div>
+<div class="legend" id="legend"></div>
+
+<table>
+  <thead>
+    <tr>
+      <th onclick="setSort('rank')">#</th>
+      <th onclick="setSort('title')">Título / Autor</th>
+      <th class="lang right" onclick="setSort('lang')">Idioma</th>
+      <th class="goodreads right" onclick="setSort('rating')">Goodreads</th>
+      <th class="rtime right" id="th-rt" onclick="setSort('rt')" style="display:none">Lectura</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+<div class="no-results" id="no-results" style="display:none">Sin resultados.</div>
+
+<script>
+const LANGS={
+  en:{label:'Inglés',  color:'#5b8dd9'},
+  ru:{label:'Ruso',    color:'#d95b5b'},
+  fr:{label:'Francés', color:'#9b5bd9'},
+  de:{label:'Alemán',  color:'#d9915b'},
+  es:{label:'Español', color:'#c8b040'},
+  it:{label:'Italiano',color:'#5bd97a'},
+  ko:{label:'Coreano', color:'#d95bb8'},
+  ja:{label:'Japonés', color:'#e8a0b0'},
+  el:{label:'Griego',  color:'#60c8c0'},
+  la:{label:'Latín',   color:'#a8987a'},
+  ot:{label:'Otros',   color:'#888888'},
+};
+const MEDALS=['🥇','🥈','🥉'];
+
+// Guardian: [rank, title, author, rating, lang]
+const G=[
+[1,"Middlemarch","George Eliot",4.28,'en'],
+[2,"Beloved","Toni Morrison",4.07,'en'],
+[3,"Ulysses","James Joyce",3.73,'en'],
+[4,"To the Lighthouse","Virginia Woolf",3.93,'en'],
+[5,"In Search of Lost Time","Marcel Proust",4.11,'fr'],
+[6,"Anna Karenina","Leo Tolstoy",4.08,'ru'],
+[7,"War and Peace","Leo Tolstoy",4.11,'ru'],
+[8,"Jane Eyre","Charlotte Brontë",4.18,'en'],
+[9,"Pride and Prejudice","Jane Austen",4.28,'en'],
+[10,"Madame Bovary","Gustave Flaubert",3.82,'fr'],
+[11,"The Great Gatsby","F. Scott Fitzgerald",3.93,'en'],
+[12,"Bleak House","Charles Dickens",4.12,'en'],
+[13,"Emma","Jane Austen",4.01,'en'],
+[14,"Mrs Dalloway","Virginia Woolf",3.93,'en'],
+[15,"Moby-Dick","Herman Melville",3.51,'en'],
+[16,"Nineteen Eighty-Four","George Orwell",4.19,'en'],
+[17,"One Hundred Years of Solitude","Gabriel García Márquez",4.06,'es'],
+[18,"Persuasion","Jane Austen",4.17,'en'],
+[19,"Tristram Shandy","Laurence Sterne",3.59,'en'],
+[20,"Wuthering Heights","Emily Brontë",3.97,'en'],
+[21,"The Portrait of a Lady","Henry James",3.98,'en'],
+[22,"Things Fall Apart","Chinua Achebe",3.93,'en'],
+[23,"Midnight's Children","Salman Rushdie",3.91,'en'],
+[24,"The Remains of the Day","Kazuo Ishiguro",4.05,'en'],
+[25,"Lolita","Vladimir Nabokov",3.88,'en'],
+[26,"Don Quixote","Miguel de Cervantes",3.86,'es'],
+[27,"The Trial","Franz Kafka",3.97,'de'],
+[28,"The Brothers Karamazov","Fyodor Dostoevsky",4.33,'ru'],
+[29,"Pale Fire","Vladimir Nabokov",4.08,'en'],
+[30,"Frankenstein","Mary Shelley",3.82,'en'],
+[31,"The Prime of Miss Jean Brodie","Muriel Spark",3.90,'en'],
+[32,"The God of Small Things","Arundhati Roy",4.18,'en'],
+[33,"David Copperfield","Charles Dickens",4.12,'en'],
+[34,"Wolf Hall","Hilary Mantel",4.01,'en'],
+[35,"Great Expectations","Charles Dickens",3.89,'en'],
+[36,"The Handmaid's Tale","Margaret Atwood",4.12,'en'],
+[37,"Invisible Man","Ralph Ellison",3.98,'en'],
+[38,"The Age of Innocence","Edith Wharton",3.96,'en'],
+[39,"Their Eyes Were Watching God","Zora Neale Hurston",4.02,'en'],
+[40,"Song of Solomon","Toni Morrison",3.99,'en'],
+[41,"Heart of Darkness","Joseph Conrad",3.60,'en'],
+[42,"The Magic Mountain","Thomas Mann",4.01,'de'],
+[43,"Housekeeping","Marilynne Robinson",3.90,'en'],
+[44,"Giovanni's Room","James Baldwin",4.22,'en'],
+[45,"The Golden Notebook","Doris Lessing",3.89,'en'],
+[46,"The Leopard","Giuseppe Tomasi di Lampedusa",4.12,'it'],
+[47,"Vanity Fair","William Makepeace Thackeray",3.89,'en'],
+[48,"The Metamorphosis","Franz Kafka",4.01,'de'],
+[49,"A Fine Balance","Rohinton Mistry",4.39,'en'],
+[50,"Wide Sargasso Sea","Jean Rhys",3.70,'en'],
+[51,"My Brilliant Friend","Elena Ferrante",4.22,'it'],
+[52,"The Golden Bowl","Henry James",3.71,'en'],
+[53,"The Transit of Venus","Shirley Hazzard",3.88,'en'],
+[54,"Orlando","Virginia Woolf",3.99,'en'],
+[55,"The Waves","Virginia Woolf",3.97,'en'],
+[56,"Mansfield Park","Jane Austen",3.88,'en'],
+[57,"The Sound and the Fury","William Faulkner",3.83,'en'],
+[58,"Disgrace","J.M. Coetzee",3.90,'en'],
+[59,"Never Let Me Go","Kazuo Ishiguro",3.84,'en'],
+[60,"Howards End","E.M. Forster",4.00,'en'],
+[61,"The Rings of Saturn","W.G. Sebald",4.09,'de'],
+[62,"Half of a Yellow Sun","Chimamanda Ngozi Adichie",4.27,'en'],
+[63,"White Teeth","Zadie Smith",3.84,'en'],
+[64,"The Good Soldier","Ford Madox Ford",3.83,'en'],
+[65,"The Color Purple","Alice Walker",4.21,'en'],
+[66,"The Master and Margarita","Mikhail Bulgakov",4.32,'ru'],
+[67,"The Man Without Qualities","Robert Musil",4.10,'de'],
+[68,"Blood Meridian","Cormac McCarthy",3.93,'en'],
+[69,"Crime and Punishment","Fyodor Dostoevsky",4.25,'ru'],
+[70,"Jude the Obscure","Thomas Hardy",3.87,'en'],
+[71,"Kindred","Octavia Butler",4.29,'en'],
+[72,"Our Mutual Friend","Charles Dickens",4.10,'en'],
+[73,"Austerlitz","W.G. Sebald",4.07,'de'],
+[74,"Nervous Conditions","Tsitsi Dangarembga",4.09,'en'],
+[75,"The Bluest Eye","Toni Morrison",3.97,'en'],
+[76,"Dracula","Bram Stoker",4.02,'en'],
+[77,"The Rainbow","D.H. Lawrence",3.76,'en'],
+[78,"A House for Mr Biswas","V.S. Naipaul",4.10,'en'],
+[79,"Go Tell It on the Mountain","James Baldwin",4.00,'en'],
+[80,"Rebecca","Daphne du Maurier",4.23,'en'],
+[81,"Buddenbrooks","Thomas Mann",4.06,'de'],
+[82,"The End of the Affair","Graham Greene",3.93,'en'],
+[83,"A Farewell to Arms","Ernest Hemingway",3.83,'en'],
+[84,"The Talented Mr Ripley","Patricia Highsmith",4.07,'en'],
+[85,"The Vegetarian","Han Kang",3.72,'ko'],
+[86,"The Turn of the Screw","Henry James",3.84,'en'],
+[87,"The Line of Beauty","Alan Hollinghurst",3.82,'en'],
+[88,"Ragtime","E.L. Doctorow",3.90,'en'],
+[89,"The Left Hand of Darkness","Ursula K. Le Guin",4.08,'en'],
+[90,"Jacob's Room","Virginia Woolf",3.73,'en'],
+[91,"Life and Fate","Vasily Grossman",4.48,'ru'],
+[92,"Sentimental Education","Gustave Flaubert",3.70,'fr'],
+[93,"Invisible Cities","Italo Calvino",4.16,'it'],
+[94,"The Known World","Edward P. Jones",3.83,'en'],
+[95,"The Return of the Native","Thomas Hardy",3.71,'en'],
+[96,"Pedro Páramo","Juan Rulfo",3.97,'es'],
+[97,"Catch-22","Joseph Heller",4.01,'en'],
+[98,"The Road","Cormac McCarthy",4.00,'en'],
+[99,"The Go-Between","L.P. Hartley",3.91,'en'],
+[100,"My Ántonia","Willa Cather",3.90,'en'],
+];
+
+// Economist: [rank, title, author, rating, lang, readMins]
+const E=[
+[1,"One Hundred Years of Solitude","Gabriel García Márquez",4.06,'es',460],
+[2,"The Great Gatsby","F. Scott Fitzgerald",3.93,'en',171],
+[3,"Ulysses","James Joyce",3.73,'en',894],
+[4,"The Catcher in the Rye","J.D. Salinger",3.80,'en',276],
+[5,"Nineteen Eighty-Four","George Orwell",4.19,'en',335],
+[6,"In Search of Lost Time","Marcel Proust",4.11,'fr',4547],
+[7,"Lolita","Vladimir Nabokov",3.88,'en',365],
+[8,"To Kill a Mockingbird","Harper Lee",4.27,'en',335],
+[9,"Moby Dick","Herman Melville",3.51,'en',719],
+[10,"Pride and Prejudice","Jane Austen",4.28,'en',435],
+[11,"Wuthering Heights","Emily Brontë",3.97,'en',397],
+[12,"Don Quixote","Miguel de Cervantes",3.86,'es',1434],
+[13,"Crime and Punishment","Fyodor Dostoevsky",4.25,'ru',688],
+[14,"Anna Karenina","Leo Tolstoy",4.08,'ru',1176],
+[15,"The Grapes of Wrath","John Steinbeck",3.99,'en',625],
+[16,"War and Peace","Leo Tolstoy",4.11,'ru',1868],
+[17,"The Lord of the Rings","J.R.R. Tolkien",4.51,'en',1873],
+[18,"Catch-22","Joseph Heller",4.01,'en',633],
+[19,"Madame Bovary","Gustave Flaubert",3.82,'fr',396],
+[20,"Jane Eyre","Charlotte Brontë",4.18,'en',625],
+[21,"The Sound and the Fury","William Faulkner",3.83,'en',314],
+[22,"Alice's Adventures in Wonderland","Lewis Carroll",4.02,'en',99],
+[23,"Middlemarch","George Eliot",4.28,'en',1065],
+[24,"Adventures of Huckleberry Finn","Mark Twain",3.84,'en',380],
+[25,"Heart of Darkness","Joseph Conrad",3.60,'en',137],
+[26,"Beloved","Toni Morrison",4.07,'en',319],
+[27,"The Divine Comedy","Dante Alighieri",4.07,'it',372],
+[28,"Invisible Man","Ralph Ellison",3.98,'en',718],
+[29,"The Odyssey","Homer",4.03,'el',442],
+[30,"Frankenstein","Mary Shelley",3.82,'en',256],
+[31,"The Stranger","Albert Camus",3.99,'fr',117],
+[32,"The Brothers Karamazov","Fyodor Dostoevsky",4.33,'ru',1180],
+[33,"Great Expectations","Charles Dickens",3.89,'en',625],
+[34,"The Bible","-",4.50,'ot',2467],
+[35,"To the Lighthouse","Virginia Woolf",3.93,'en',233],
+[36,"Mrs Dalloway","Virginia Woolf",3.93,'en',222],
+[37,"The Iliad","Homer",3.89,'el',641],
+[38,"Midnight's Children","Salman Rushdie",3.91,'en',814],
+[39,"The Trial","Franz Kafka",3.97,'de',289],
+[40,"On the Road","Jack Kerouac",3.76,'en',446],
+[41,"The Master and Margarita","Mikhail Bulgakov",4.32,'ru',496],
+[42,"Brave New World","Aldous Huxley",3.99,'en',199],
+[43,"The Magic Mountain","Thomas Mann",4.01,'de',1107],
+[44,"Gulliver's Travels","Jonathan Swift",3.69,'en',350],
+[45,"David Copperfield","Charles Dickens",4.12,'en',1193],
+[46,"Les Misérables","Victor Hugo",4.21,'fr',1895],
+[47,"Gone with the Wind","Margaret Mitchell",4.28,'en',1397],
+[48,"The Sun Also Rises","Ernest Hemingway",3.74,'en',237],
+[49,"Their Eyes Were Watching God","Zora Neale Hurston",4.02,'en',206],
+[50,"Things Fall Apart","Chinua Achebe",3.93,'en',214],
+[51,"The Color Purple","Alice Walker",4.21,'en',248],
+[52,"The Red and the Black","Stendhal",3.77,'fr',656],
+[53,"A Passage to India","E.M. Forster",3.87,'en',349],
+[54,"Slaughterhouse-Five","Kurt Vonnegut",4.10,'en',192],
+[55,"Lord of the Flies","William Golding",3.69,'en',211],
+[56,"Absalom, Absalom!","William Faulkner",3.80,'en',420],
+[57,"Rebecca","Daphne du Maurier",4.23,'en',485],
+[58,"The Scarlet Letter","Nathaniel Hawthorne",3.42,'en',290],
+[59,"Tristram Shandy","Laurence Sterne",3.59,'en',587],
+[60,"The Diary of a Young Girl","Anne Frank",4.16,'de',357],
+[61,"Silent Spring","Rachel Carson",4.16,'en',278],
+[62,"The Little Prince","Antoine de Saint-Exupéry",4.30,'fr',54],
+[63,"The Portrait of a Lady","Henry James",3.98,'en',400],
+[64,"Candide","Voltaire",3.77,'fr',130],
+[65,"Little Women","Louisa May Alcott",4.09,'en',652],
+[66,"One Thousand and One Nights","-",3.94,'ot',319],
+[67,"As I Lay Dying","William Faulkner",3.74,'en',194],
+[68,"A Portrait of the Artist as a Young Man","James Joyce",3.76,'en',293],
+[69,"Native Son","Richard Wright",3.97,'en',526],
+[70,"The Handmaid's Tale","Margaret Atwood",4.12,'en',334],
+[71,"Walden","Henry David Thoreau",3.84,'en',257],
+[72,"Vanity Fair","William Makepeace Thackeray",3.89,'en',1018],
+[73,"The Hitchhiker's Guide to the Galaxy","Douglas Adams",4.22,'en',175],
+[74,"Animal Farm","George Orwell",3.98,'en',106],
+[75,"The Aeneid","Virgil",3.91,'la',369],
+[76,"In Cold Blood","Truman Capote",4.09,'en',435],
+[77,"Robinson Crusoe","Daniel Defoe",3.52,'en',413],
+[78,"The Bell Jar","Sylvia Plath",4.01,'en',218],
+[79,"For Whom the Bell Tolls","Ernest Hemingway",3.83,'en',619],
+[80,"Oedipus the King","Sophocles",4.02,'el',57],
+[81,"The Old Man and the Sea","Ernest Hemingway",3.82,'en',89],
+[82,"Tess of the d'Urbervilles","Thomas Hardy",3.83,'en',510],
+[83,"Hamlet","William Shakespeare",4.03,'en',107],
+[84,"Faust","Johann Wolfgang von Goethe",3.89,'de',329],
+[85,"Dracula","Bram Stoker",4.02,'en',548],
+[86,"The Prince","Niccolo Machiavelli",3.89,'it',177],
+[87,"A Clockwork Orange","Anthony Burgess",4.01,'en',217],
+[88,"The Age of Innocence","Edith Wharton",3.96,'en',348],
+[89,"Leaves of Grass","Walt Whitman",4.14,'en',416],
+[90,"Pale Fire","Vladimir Nabokov",4.08,'en',261],
+[91,"Tom Jones","Henry Fielding",3.67,'en',1179],
+[92,"The Picture of Dorian Gray","Oscar Wilde",4.10,'en',273],
+[93,"The Tin Drum","Günter Grass",3.99,'de',790],
+[94,"The Golden Notebook","Doris Lessing",3.89,'en',843],
+[95,"Emma","Jane Austen",4.01,'en',565],
+[96,"Waiting for Godot","Samuel Beckett",3.93,'fr',52],
+[97,"The Leopard","Giuseppe Tomasi di Lampedusa",4.12,'it',298],
+[98,"One Flew Over the Cuckoo's Nest","Ken Kesey",4.20,'en',415],
+[99,"Charlotte's Web","E.B. White",4.19,'en',132],
+[100,"All Quiet on the Western Front","Erich Maria Remarque",4.17,'de',266],
+[101,"Fictions","Jorge Luis Borges",4.50,'es',149],
+[102,"The Big Sleep","Raymond Chandler",3.98,'en',227],
+[103,"The Canterbury Tales","Geoffrey Chaucer",3.84,'en',814],
+[104,"Treasure Island","Robert Louis Stevenson",3.85,'en',239],
+[105,"The Count of Monte Cristo","Alexandre Dumas",4.30,'fr',1547],
+[106,"Fahrenheit 451","Ray Bradbury",3.99,'en',163],
+[107,"Paradise Lost","John Milton",3.82,'en',278],
+[108,"The Name of the Rose","Umberto Eco",4.14,'it',653],
+[109,"The Idiot","Fyodor Dostoevsky",4.20,'ru',815],
+[110,"Dune","Frank Herbert",4.27,'en',539],
+[111,"Essays","Michel de Montaigne",4.05,'fr',1327],
+[112,"Love in the Time of Cholera","Gabriel García Márquez",3.90,'es',511],
+[113,"Wide Sargasso Sea","Jean Rhys",3.70,'en',175],
+[114,"The Unbearable Lightness of Being","Milan Kundera",4.15,'ot',289],
+[115,"The Stories of Anton Chekhov","Anton Chekhov",4.35,'ru',102],
+[116,"A Farewell to Arms","Ernest Hemingway",3.83,'en',314],
+[117,"The Good Soldier","Ford Madox Ford",3.83,'en',261],
+[118,"My Ántonia","Willa Cather",3.90,'en',259],
+[119,"Under the Volcano","Malcolm Lowry",3.83,'en',455],
+[120,"On the Origin of Species","Charles Darwin",4.15,'en',529],
+[121,"Complete Tales and Poems of Edgar Allan Poe","Edgar Allan Poe",4.20,'en',932],
+[122,"The Hound of the Baskervilles","Arthur Conan Doyle",4.11,'en',208],
+[123,"The Metamorphosis","Franz Kafka",4.01,'de',53],
+[124,"Journey to the End of the Night","Louis-Ferdinand Céline",3.82,'fr',570],
+[125,"Sons and Lovers","D.H. Lawrence",3.70,'en',544],
+[126,"First Folio","William Shakespeare",4.20,'en',2730],
+[127,"The Wind in the Willows","Kenneth Grahame",4.03,'en',205],
+[128,"The Heart Is a Lonely Hunter","Carson McCullers",4.22,'en',426],
+[129,"Doctor Zhivago","Boris Pasternak",4.02,'ru',754],
+[130,"The Second Sex","Simone de Beauvoir",4.11,'fr',971],
+[131,"Rabbit, Run","John Updike",3.66,'en',366],
+[132,"Fathers and Sons","Ivan Turgenev",4.07,'ru',276],
+[133,"The Castle","Franz Kafka",3.97,'de',372],
+[134,"Harry Potter and the Philosopher's Stone","J.K. Rowling",4.47,'en',292],
+[135,"The Plague","Albert Camus",3.97,'fr',319],
+[136,"Dead Souls","Nikolai Gogol",4.01,'ru',483],
+[137,"Song of Solomon","Toni Morrison",3.99,'en',320],
+[138,"Antigone","Sophocles",4.00,'el',53],
+[139,"Lord Jim","Joseph Conrad",3.80,'en',443],
+[140,"The Autobiography of Malcolm X","Alex Haley",4.29,'en',463],
+[141,"The Maltese Falcon","Dashiell Hammett",3.98,'en',245],
+[142,"The Republic","Plato",4.07,'el',436],
+[143,"The Interpretation of Dreams","Sigmund Freud",3.93,'de',698],
+[144,"The Man Without Qualities","Robert Musil",4.10,'de',1820],
+[145,"Demons","Fyodor Dostoevsky",4.19,'ru',820],
+[146,"Orlando: A Biography","Virginia Woolf",3.99,'en',239],
+[147,"Steppenwolf","Hermann Hesse",4.00,'de',221],
+[148,"Confessions","St. Augustine",4.10,'la',383],
+[149,"Buddenbrooks","Thomas Mann",4.06,'de',792],
+[150,"The House of Mirth","Edith Wharton",3.97,'en',441],
+[151,"Portnoy's Complaint","Philip Roth",3.69,'en',262],
+[152,"The Spy Who Came in from the Cold","John le Carré",4.13,'en',228],
+[153,"Doctor Faustus","Thomas Mann",3.90,'de',359],
+[154,"The Talented Mr. Ripley","Patricia Highsmith",4.07,'en',303],
+[155,"The Tale of Genji","Murasaki Shikibu",3.50,'ja',338],
+[156,"I Know Why the Caged Bird Sings","Maya Angelou",4.14,'en',302],
+[157,"The Three Musketeers","Alexandre Dumas",4.10,'fr',775],
+[158,"Howards End","E.M. Forster",4.00,'en',372],
+[159,"The Call of the Wild","Jack London",3.90,'en',116],
+[160,"The Long Goodbye","Raymond Chandler",4.07,'en',320],
+[161,"Bleak House","Charles Dickens",4.12,'en',1188],
+[162,"An American Tragedy","Theodore Dreiser",3.69,'en',1109],
+[163,"Light in August","William Faulkner",3.84,'en',483],
+[164,"The Woman in White","Wilkie Collins",4.11,'en',826],
+[165,"Winnie the Pooh","A.A. Milne",4.25,'en',79],
+[166,"All the King's Men","Robert Penn Warren",4.01,'en',761],
+[167,"The House of the Spirits","Isabel Allende",4.21,'es',486],
+[168,"Tender Is the Night","F. Scott Fitzgerald",3.72,'en',378],
+[169,"The Double Helix","James D. Watson",3.96,'en',130],
+[170,"Franz Kafka: The Complete Stories","Franz Kafka",4.23,'de',486],
+[171,"Fear and Loathing in Las Vegas","Hunter S. Thompson",3.97,'en',193],
+[172,"Blood Meridian","Cormac McCarthy",3.93,'en',376],
+[173,"Uncle Tom's Cabin","Harriet Beecher Stowe",3.84,'en',613],
+[174,"Brideshead Revisited","Evelyn Waugh",4.11,'en',367],
+[175,"A Confederacy of Dunces","John Kennedy Toole",4.07,'en',418],
+[176,"A Room of One's Own","Virginia Woolf",4.13,'en',152],
+[177,"The Complete Stories of Flannery O'Connor","Flannery O'Connor",4.18,'en',553],
+[178,"The Shining","Stephen King",4.26,'en',563],
+[179,"Watership Down","Richard Adams",4.10,'en',523],
+[180,"The Structure of Scientific Revolutions","Thomas Kuhn",3.95,'en',298],
+[181,"The Adventures of Augie March","Saul Bellow",3.82,'en',765],
+[182,"Gravity's Rainbow","Thomas Pynchon",3.88,'en',1031],
+[183,"The Jungle","Upton Sinclair",3.75,'en',180],
+[184,"Lady Chatterley's Lover","D.H. Lawrence",3.65,'en',403],
+[185,"The Time Machine","H.G. Wells",3.85,'en',118],
+[186,"The Remains of the Day","Kazuo Ishiguro",4.05,'en',242],
+[187,"One Day in the Life of Ivan Denisovich","Aleksandr Solzhenitsyn",4.05,'ru',167],
+[188,"The Hobbit","J.R.R. Tolkien",4.28,'en',336],
+[189,"Poems of Emily Dickinson","Emily Dickinson",4.28,'en',120],
+[190,"The Secret History","Donna Tartt",4.18,'en',637],
+[191,"The Prime of Miss Jean Brodie","Muriel Spark",3.90,'en',131],
+[192,"The Moviegoer","Walker Percy",3.70,'en',660],
+[193,"The Gulag Archipelago","Aleksandr Solzhenitsyn",4.46,'ru',2200],
+[194,"Nostromo","Joseph Conrad",3.85,'en',578],
+[195,"And Then There Were None","Agatha Christie",4.24,'en',198],
+[196,"Communist Manifesto","Karl Marx & Friedrich Engels",3.91,'de',48],
+[197,"Herzog","Saul Bellow",3.74,'en',425],
+[198,"The Waste Land","T.S. Eliot",3.88,'en',26],
+[199,"A Wizard of Earthsea","Ursula K. Le Guin",4.19,'en',235],
+[200,"The Awakening","Kate Chopin",3.76,'en',224],
+[201,"Gargantua and Pantagruel","François Rabelais",3.59,'fr',1077],
+[202,"U.S.A. Trilogy","John Dos Passos",3.97,'en',1033],
+[203,"A Wrinkle In Time","Madeleine L'Engle",4.12,'en',182],
+[204,"A House for Mr. Biswas","V.S. Naipaul",4.10,'en',694],
+[205,"Decameron","Giovanni Boccaccio",3.96,'it',1036],
+[206,"A Tree Grows in Brooklyn","Betty Smith",4.28,'en',500],
+[207,"Father Goriot","Honoré de Balzac",3.97,'fr',355],
+[208,"The Ambassadors","Henry James",3.73,'en',550],
+[209,"Atonement","Ian McEwan",3.95,'en',415],
+[210,"The Lion, The Witch and the Wardrobe","C.S. Lewis",4.22,'en',136],
+[211,"Dangerous Liaisons","Pierre Choderlos de Laclos",3.89,'fr',513],
+[212,"Fairy Tales and Stories","Hans Christian Andersen",4.16,'ot',1144],
+[213,"The Pickwick Papers","Charles Dickens",3.90,'en',1010],
+[214,"Kim","Rudyard Kipling",3.74,'en',359],
+[215,"Housekeeping","Marilynne Robinson",3.90,'en',209],
+[216,"White Teeth","Zadie Smith",3.84,'en',612],
+[217,"Collected Poems of W.B. Yeats","William Butler Yeats",4.31,'en',83],
+[218,"Medea","Euripides",3.89,'el',80],
+[219,"Of Mice and Men","John Steinbeck",3.89,'en',101],
+[220,"War of the Worlds","H.G. Wells",3.90,'en',210],
+[221,"The World According to Garp","John Irving",4.13,'en',645],
+[222,"The Corrections","Jonathan Franzen",3.75,'en',644],
+[223,"Atlas Shrugged","Ayn Rand",3.69,'en',1564],
+[224,"Macbeth","William Shakespeare",3.98,'en',71],
+[225,"The God of Small Things","Arundhati Roy",4.18,'en',347],
+[226,"Tropic of Cancer","Henry Miller",3.40,'en',301],
+[227,"The Stand","Stephen King",4.35,'en',1622],
+[228,"Women in Love","D.H. Lawrence",3.65,'en',566],
+[229,"The Adventures of Tom Sawyer","Mark Twain",3.92,'en',246],
+[230,"Cold Comfort Farm","Stella Gibbons",4.02,'en',279],
+[231,"Jude the Obscure","Thomas Hardy",3.87,'en',492],
+[232,"The Once and Future King","T.H. White",4.17,'en',1056],
+[233,"The Strange Case of Dr. Jekyll and Mr. Hyde","Robert Louis Stevenson",3.89,'en',96],
+[234,"Babbitt","Sinclair Lewis",3.49,'en',419],
+[235,"The Complete Sherlock Holmes","Arthur Conan Doyle",4.40,'en',2186],
+[236,"Siddhartha","Hermann Hesse",4.07,'de',141],
+[237,"A Tale of Two Cities","Charles Dickens",3.91,'en',463],
+[238,"Lucky Jim","Kingsley Amis",3.78,'en',284],
+[239,"Democracy in America","Alexis de Tocqueville",4.06,'fr',636],
+[240,"The Charterhouse of Parma","Stendhal",3.84,'fr',411],
+[241,"Molloy","Samuel Beckett",3.88,'fr',212],
+[242,"The Good Soldier Svejk","Jaroslav Hašek",4.01,'ot',918],
+[243,"Bonfire of the Vanities","Tom Wolfe",3.96,'en',829],
+[244,"The Life of Samuel Johnson","James Boswell",3.94,'en',978],
+[245,"Disgrace","J.M. Coetzee",3.90,'en',225],
+[246,"American Pastoral","Philip Roth",3.97,'en',526],
+[247,"Man's Fate","André Malraux",3.83,'fr',367],
+[248,"Foundation","Isaac Asimov",4.20,'en',258],
+[249,"Oedipus at Colonus","Sophocles",3.92,'el',101],
+[250,"Oresteia","Aeschylus",3.96,'el',108],
+[251,"If This Is a Man","Primo Levi",4.36,'it',454],
+[252,"Neuromancer","William Gibson",3.98,'en',332],
+[253,"The Mayor of Casterbridge","Thomas Hardy",3.82,'en',394],
+[254,"The Amazing Adventures of Kavalier and Clay","Michael Chabon",4.16,'en',793],
+[255,"Nausea","Jean Paul Sartre",3.90,'fr',272],
+[256,"Confessions of Zeno","Italo Svevo",3.75,'it',545],
+[257,"The Things They Carried","Tim O'Brien",4.21,'en',235],
+[258,"King Lear","William Shakespeare",4.02,'en',82],
+[259,"Go Tell It on the Mountain","James Baldwin",4.00,'en',280],
+[260,"Giovanni's Room","James Baldwin",4.22,'en',175],
+[261,"The Murder of Roger Ackroyd","Agatha Christie",4.21,'en',246],
+[262,"The Counterfeiters","André Gide",3.69,'fr',247],
+[263,"A Sentimental Education","Gustave Flaubert",3.70,'fr',499],
+[264,"Are You There God? It's Me, Margaret","Judy Blume",3.97,'en',105],
+[265,"Ivanhoe","Sir Walter Scott",3.71,'en',606],
+[266,"Possession","A.S. Byatt",3.87,'en',600],
+[267,"Of Human Bondage","W. Somerset Maugham",4.02,'en',875],
+[268,"The Chronicles of Narnia","C.S. Lewis",4.34,'en',1156],
+[269,"Anne of Green Gables","L.M. Montgomery",4.27,'en',352],
+[270,"The Turn of the Screw","Henry James",3.84,'en',151],
+[271,"The Godfather","Mario Puzo",4.00,'en',261],
+[272,"If on a Winter's Night a Traveller","Italo Calvino",4.07,'it',526],
+[273,"The Adventures of Oliver Twist","Charles Dickens",3.91,'en',534],
+[274,"Twenty Thousand Leagues Under the Sea","Jules Verne",3.96,'fr',359],
+[275,"Stranger in a Strange Land","Robert A. Heinlein",3.98,'en',387],
+[276,"The Left Hand of Darkness","Ursula K. Le Guin",4.08,'en',282],
+[277,"The Wind-Up Bird Chronicle","Haruki Murakami",4.10,'ja',847],
+[278,"Brighton Rock","Graham Greene",3.91,'en',311],
+[279,"Epic of Gilgamesh","-",3.87,'ot',67],
+[280,"A Prayer for Owen Meany","John Irving",4.32,'en',822],
+[281,"The Haunting of Hill House","Shirley Jackson",4.03,'en',199],
+[282,"Thus Spake Zarathustra","Friedrich Nietzsche",3.95,'de',380],
+[283,"Oblomov","Ivan Goncharov",3.95,'ru',207],
+[284,"Winesburg, Ohio","Sherwood Anderson",3.88,'en',257],
+[285,"The End of the Affair","Graham Greene",3.93,'en',224],
+[286,"Persuasion","Jane Austen",4.17,'en',288],
+[287,"The Sea, The Sea","Iris Murdoch",3.59,'en',606],
+[288,"The Flowers of Evil","Charles Baudelaire",4.11,'fr',36],
+[289,"The Sorrows of Young Werther","Johann Wolfgang von Goethe",3.73,'de',152],
+[290,"A Room With a View","E.M. Forster",4.05,'en',232],
+[291,"The Stories of John Cheever","John Cheever",4.01,'en',215],
+[292,"Do Androids Dream of Electric Sheep?","Philip K. Dick",4.00,'en',224],
+[293,"Invisible Cities","Italo Calvino",4.16,'it',93],
+[294,"The Good Earth","Pearl S. Buck",3.93,'en',368],
+[295,"A Season in Hell","Arthur Rimbaud",3.97,'fr',36],
+[296,"At Swim Two-Birds","Flann O'Brien",3.78,'en',291],
+[297,"The Moonstone","Wilkie Collins",4.06,'en',660],
+[298,"Pedro Páramo","Juan Rulfo",3.97,'es',53],
+[299,"The Lover","Marguerite Duras",3.93,'fr',95],
+[300,"The Joy Luck Club","Amy Tan",4.05,'en',279],
+[301,"The Road","Cormac McCarthy",4.00,'en',215],
+[302,"Hunger","Knut Hamsun",3.90,'ot',215],
+[303,"Infinite Jest","David Foster Wallace",3.92,'en',1819],
+[304,"Labyrinths","Jorge Luis Borges",4.50,'es',285],
+[305,"White Noise","Don DeLillo",3.84,'en',324],
+[306,"Look Homeward, Angel","Thomas Wolfe",3.85,'en',743],
+[307,"I, Claudius","Robert Graves",4.22,'en',530],
+[308,"The Alchemist","Paulo Coelho",3.87,'ot',171],
+[309,"The Tempest","William Shakespeare",3.99,'en',88],
+[310,"Memoirs of Hadrian","Marguerite Yourcenar",4.18,'fr',124],
+[311,"The Poems of Robert Frost","Robert Frost",4.23,'en',95],
+[312,"The Histories of Herodotus","Herodotus",4.01,'el',828],
+[313,"Darkness at Noon","Arthur Koestler",3.96,'de',263],
+[314,"The Confessions of Jean-Jacques Rousseau","Jean-Jacques Rousseau",3.84,'fr',904],
+[315,"Mahabharata","Vyasa",3.98,'ot',170],
+[316,"Children's and Household Tales","Brothers Grimm",4.13,'de',583],
+[317,"A Vindication of the Rights of Woman","Mary Wollstonecraft",3.93,'en',298],
+[318,"The Red Badge of Courage","Stephen Crane",3.43,'en',164],
+[319,"Nightwood","Djuna Barnes",3.80,'en',189],
+[320,"East of Eden","John Steinbeck",4.54,'en',788],
+[321,"Berlin Alexanderplatz","Alfred Döblin",3.86,'de',306],
+[322,"Naked Lunch","William S. Burroughs",3.23,'en',315],
+[323,"Money","Martin Amis",3.93,'en',520],
+[324,"A Doll's House","Henrik Ibsen",3.97,'ot',98],
+[325,"Finnegans Wake","James Joyce",3.50,'en',729],
+[326,"Out of Africa","Isak Dinesen",3.87,'en',93],
+[327,"The Tartar Steppe","Dino Buzzati",4.05,'it',83],
+[328,"The Old Wives' Tale","Arnold Bennett",3.74,'en',732],
+[329,"The Wonderful Wizard of Oz","L. Frank Baum",3.97,'en',142],
+[330,"Metamorphoses","Ovid",4.07,'la',428],
+[331,"The Elements of Style","William Strunk Jr. & E.B. White",4.12,'en',57],
+[332,"The Mill on the Floss","George Eliot",3.93,'en',698],
+[333,"Speak, Memory","Vladimir Nabokov",4.18,'en',276],
+[334,"Zorba the Greek","Nikos Kazantzakis",4.17,'el',320],
+[335,"A Bend in the River","V.S. Naipaul",3.85,'en',357],
+[336,"A Good Man Is Hard to Find","Flannery O'Connor",3.96,'en',263],
+[337,"Pippi Longstocking","Astrid Lindgren",4.15,'ot',86],
+[338,"Cry, the Beloved Country","Alan Paton",3.99,'en',279],
+[339,"Leviathan","Thomas Hobbes",3.77,'en',721],
+[340,"Let Us Now Praise Famous Men","James Agee",3.96,'en',361],
+[341,"Ragtime","E.L. Doctorow",3.90,'en',263],
+[342,"His Dark Materials","Philip Pullman",4.34,'en',1364],
+[343,"Clarissa","Samuel Richardson",3.47,'en',1033],
+[344,"Pensées","Blaise Pascal",4.10,'fr',380],
+[345,"A Suitable Boy","Vikram Seth",4.30,'en',2097],
+[346,"Relativity","Albert Einstein",4.00,'de',62],
+[347,"Sophie's Choice","William Styron",3.96,'en',94],
+[348,"Death of Virgil","Hermann Broch",3.51,'de',491],
+[349,"Germinal","Émile Zola",4.10,'fr',604],
+[350,"The Power and the Glory","Graham Greene",3.96,'en',314],
+[351,"The General Theory of Employment","John Maynard Keynes",3.85,'en',401],
+[352,"The Last of the Mohicans","James Fenimore Cooper",3.59,'en',505],
+[353,"Pilgrim's Progress","John Bunyan",3.72,'en',204],
+[354,"The Day of the Locust","Nathanael West",3.65,'en',146],
+[355,"Malone Dies","Samuel Beckett",3.88,'fr',158],
+[356,"Homage to Catalonia","George Orwell",4.12,'en',254],
+[357,"The Complete Works of Plato","Plato",4.21,'el',200],
+[358,"A Dance to the Music of Time","Anthony Powell",4.17,'en',2840],
+[359,"A Brief History of Time","Stephen Hawking",4.19,'en',192],
+[360,"Le Morte d'Arthur","Thomas Malory",3.78,'en',573],
+[361,"The Secret Garden","Frances Hodgson Burnett",4.14,'en',280],
+[362,"Stories of Ernest Hemingway","Ernest Hemingway",4.07,'en',199],
+[363,"Rabbit Redux","John Updike",3.56,'en',471],
+[364,"The Daughter of Time","Josephine Tey",4.22,'en',180],
+[365,"The Princess of Cleves","Madame de La Fayette",3.64,'fr',215],
+[366,"Ethan Frome","Edith Wharton",3.54,'en',126],
+[367,"Zen and the Art of Motorcycle Maintenance","Robert M. Pirsig",3.80,'en',512],
+[368,"Our Mutual Friend","Charles Dickens",4.10,'en',1094],
+[369,"The Shipping News","Annie Proulx",3.77,'en',326],
+[370,"The Decline and Fall of the Roman Empire","Edward Gibbon",3.98,'en',5335],
+[371,"I Capture the Castle","Dodie Smith",4.15,'en',445],
+[372,"A Christmas Carol","Charles Dickens",4.11,'en',105],
+[373,"The Electric Kool-Aid Acid Test","Tom Wolfe",3.98,'en',399],
+[374,"The Bacchae","Euripides",4.03,'el',67],
+[375,"2001: A Space Odyssey","Arthur C. Clarke",4.06,'en',187],
+[376,"Black Lamb and Grey Falcon","Rebecca West",4.22,'en',1177],
+[377,"Rabbit Is Rich","John Updike",3.53,'en',577],
+[378,"The Crying of Lot 49","Thomas Pynchon",3.73,'en',161],
+[379,"The Waves","Virginia Woolf",3.97,'en',229],
+[380,"Regeneration","Pat Barker",3.96,'en',270],
+[381,"The Feminine Mystique","Betty Friedan",4.05,'en',488],
+[382,"Wings of the Dove","Henry James",3.72,'en',277],
+[383,"The Hunchback of Notre-Dame","Victor Hugo",4.03,'fr',653],
+[384,"A Fine Balance","Rohinton Mistry",4.39,'en',745],
+[385,"The Day of the Jackal","Frederick Forsyth",4.13,'en',416],
+[386,"The Return of the Native","Thomas Hardy",3.71,'en',430],
+[387,"Never Let Me Go","Kazuo Ishiguro",3.84,'en',322],
+[388,"The Forsyte Saga","John Galsworthy",3.96,'en',375],
+[389,"Nights at the Circus","Angela Carter",3.76,'en',385],
+[390,"Meditations","Marcus Aurelius",4.28,'la',250],
+[391,"The Brief Wondrous Life of Oscar Wao","Junot Diaz",3.99,'en',310],
+[392,"The Poisonwood Bible","Barbara Kingsolver",4.20,'en',554],
+[393,"The Rainbow","D.H. Lawrence",3.76,'en',630],
+[394,"Kristin Lavransdatter","Sigrid Undset",4.27,'ot',1506],
+[395,"Critique of Pure Reason","Immanuel Kant",3.77,'de',707],
+[396,"Bonjour Tristesse","Françoise Sagan",3.78,'fr',28],
+[397,"So Long, See You Tomorrow","William Maxwell",3.96,'en',186],
+[398,"The Civil War","Shelby Foote",4.35,'en',4854],
+[399,"Murder on the Orient Express","Agatha Christie",4.17,'en',208],
+[400,"The Death of Ivan Ilyich","Leo Tolstoy",4.13,'ru',83],
+[401,"American Psycho","Bret Easton Ellis",3.91,'en',491],
+[402,"Through the Looking Glass","Lewis Carroll",4.00,'en',178],
+[403,"Ferdydurke","Witold Gombrowicz",3.61,'ot',319],
+[404,"The Thirty-Nine Steps","John Buchan",3.89,'en',147],
+[405,"Das Kapital","Karl Marx",3.94,'de',77],
+[406,"The Siege of Krishnapur","J.G. Farrell",3.75,'en',424],
+[407,"Maus","Art Spiegelman",4.55,'en',158],
+[408,"Silas Marner","George Eliot",3.87,'en',247],
+[409,"Main Street","Sinclair Lewis",3.50,'en',565],
+[410,"The Varieties of Religious Experience","William James",4.07,'en',631],
+[411,"Independent People","Halldor Laxness",4.40,'ot',698],
+[412,"Schindler's List","Thomas Keneally",4.43,'en',451],
+[413,"The French Lieutenant's Woman","John Fowles",3.88,'en',501],
+[414,"The Phantom Tollbooth","Norton Juster",4.20,'en',153],
+[415,"The Vicar of Wakefield","Oliver Goldsmith",3.56,'en',214],
+[416,"The Private Memoirs and Confessions of a Justified Sinner","James Hogg",3.84,'en',290],
+[417,"Sister Carrie","Theodore Dreiser",3.60,'en',532],
+[418,"Underworld","Don DeLillo",3.66,'en',231],
+[419,"Play It As It Lays","Joan Didion",3.70,'en',123],
+[420,"Perfume","Patrick Süskind",4.21,'de',292],
+[421,"Where the Wild Things Are","Maurice Sendak",4.22,'en',1],
+[422,"The Death of the Heart","Elizabeth Bowen",3.80,'en',356],
+[423,"The Affluent Society","John Kenneth Galbraith",3.62,'en',271],
+[424,"Notes from the Underground","Fyodor Dostoevsky",4.05,'ru',157],
+[425,"The Wealth of Nations","Adam Smith",3.86,'en',1102],
+[426,"Collected Poems","Wallace Stevens",4.17,'en',309],
+[427,"Eugene Onegin","Alexander Pushkin",4.12,'ru',111],
+[428,"Beowulf","-",3.55,'en',141],
+[429,"A Streetcar Named Desire","Tennessee Williams",4.06,'en',54],
+[430,"Waiting for the Barbarians","J.M. Coetzee",3.93,'en',222],
+[431,"The Golden Bowl","Henry James",3.71,'en',692],
+[432,"The Education of Henry Adams","Henry Adams",3.84,'en',597],
+[433,"Far from the Madding Crowd","Thomas Hardy",3.99,'en',467],
+[434,"A Hero of Our Time","Mikhail Lermontov",4.02,'ru',207],
+[435,"Solaris","Stanislaw Lem",4.10,'ot',250],
+[436,"The Man Who Loved Children","Christina Stead",3.63,'en',613],
+[437,"Crash","J.G. Ballard",3.38,'en',195],
+[438,"Dubliners","James Joyce",4.01,'en',235],
+[439,"Life and Fate","Vasily Grossman",4.48,'ru',248],
+[440,"Electra","Sophocles",3.88,'el',38],
+[441,"The Autobiography of Alice B. Toklas","Gertrude Stein",3.82,'en',316],
+[442,"Gilead","Marilynne Robinson",4.10,'en',290],
+[443,"Moll Flanders","Daniel Defoe",3.49,'en',488],
+[444,"The Koran","-",3.99,'ot',586],
+[445,"Middlesex","Jeffrey Eugenides",4.15,'en',150],
+[446,"The Alexandria Quartet","Lawrence Durrell",3.92,'en',1049],
+[447,"Black Beauty","Anna Sewell",3.96,'en',210],
+[448,"Harry Potter and the Prisoner of Azkaban","J.K. Rowling",4.57,'en',404],
+[449,"Cloud Atlas","David Mitchell",4.14,'en',518],
+[450,"The Glass Bead Game","Hermann Hesse",4.12,'de',665],
+[451,"Life, a User's Manual","Georges Perec",4.09,'fr',606],
+[452,"The Savage Detectives","Roberto Bolaño",3.84,'es',848],
+[453,"The Magus","John Fowles",3.87,'en',793],
+[454,"Philosophical Investigations","Ludwig Wittgenstein",3.90,'de',328],
+[455,"The Cherry Orchard","Anton Chekhov",4.03,'ru',61],
+[456,"We","Yevgeny Zamyatin",4.07,'ru',221],
+[457,"The Bluest Eye","Toni Morrison",3.97,'en',191],
+[458,"Call It Sleep","Henry Roth",4.01,'en',530],
+[459,"The Secret Agent","Joseph Conrad",3.68,'en',280],
+[460,"Death in Venice","Thomas Mann",3.93,'de',105],
+[461,"The Postman Always Rings Twice","James M. Cain",3.89,'en',110],
+[462,"Analects","Confucius",3.99,'ot',108],
+[463,"The Third Policeman","Flann O'Brien",4.12,'en',264],
+[464,"Kindred","Octavia E. Butler",4.29,'en',333],
+[465,"Austerlitz","W.G. Sebald",4.07,'de',134],
+[466,"Red Harvest","Dashiell Hammett",3.89,'en',197],
+[467,"Ada or Ardor","Vladimir Nabokov",3.87,'en',573],
+[468,"Nine Stories","J.D. Salinger",4.16,'en',301],
+[469,"The Fountainhead","Ayn Rand",3.88,'en',1151],
+[470,"The Unnamable","Samuel Beckett",3.89,'fr',195],
+[471,"Adam Bede","George Eliot",3.89,'en',707],
+[472,"Quo Vadis","Henryk Sienkiewicz",3.87,'ot',725],
+[473,"The Right Stuff","Tom Wolfe",4.25,'en',539],
+[474,"Breakfast at Tiffany's","Truman Capote",3.92,'en',91],
+[475,"Rabbit at Rest","John Updike",3.57,'en',645],
+[476,"The Art of War","Sun Tzu",3.98,'ot',194],
+[477,"The Way We Live Now","Anthony Trollope",4.04,'en',1179],
+[478,"The English Patient","Michael Ondaatje",3.94,'en',267],
+[479,"The Naked and the Dead","Norman Mailer",3.75,'en',826],
+[480,"The Betrothed","Alessandro Manzoni",3.95,'it',569],
+[481,"The Souls of Black Folk","W.E.B. Du Bois",4.17,'en',239],
+[482,"The Book of Disquiet","Fernando Pessoa",4.12,'ot',534],
+[483,"The Thorn Birds","Colleen McCullough",4.02,'en',202],
+[484,"Prometheus Bound","Aeschylus",3.88,'el',32],
+[485,"Season of Migration to the North","Al-Tayyib Salih",4.05,'ot',139],
+[486,"Wise Blood","Flannery O'Connor",3.88,'en',172],
+[487,"The House of the Seven Gables","Nathaniel Hawthorne",3.47,'en',360],
+[488,"2666","Roberto Bolaño",4.15,'es',1211],
+[489,"The Federalist Papers","Alexander Hamilton et al.",4.12,'en',625],
+[490,"Journey to the West","Wu Cheng'en",4.08,'ot',375],
+[491,"De Rerum Natura","Lucretius",3.92,'la',223],
+[492,"Cousin Bette","Honoré de Balzac",3.99,'fr',503],
+[493,"Harry Potter and the Goblet of Fire","J.K. Rowling",4.57,'en',699],
+[494,"Charlie and the Chocolate Factory","Roald Dahl",4.15,'en',104],
+[495,"The Sheltering Sky","Paul Bowles",3.82,'en',338],
+[496,"The Sonnets","William Shakespeare",4.22,'en',65],
+[497,"The Nicomachean Ethics","Aristotle",3.94,'el',286],
+[498,"Tinker, Tailor, Soldier, Spy","John le Carré",4.09,'en',399],
+[499,"Watchmen","Alan Moore",4.50,'en',415],
+[500,"Effi Briest","Theodor Fontane",3.81,'de',330],
+];
+
+// Normalize title for matching
+function norm(t){return t.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim()}
+const gTitles=new Set(G.map(b=>norm(b[1])));
+const eTitles=new Set(E.map(b=>norm(b[1])));
+function inBoth(title){const n=norm(title);return gTitles.has(n)&&eTitles.has(n)}
+
+// Precompute top3 per lang
+function calcTop3(data){
+  const t={};
+  Object.keys(LANGS).forEach(lk=>{
+    t[lk]=data.filter(b=>b[4]===lk).sort((a,b)=>a[0]-b[0]).slice(0,3).map(b=>b[0]);
+  });
+  return t;
+}
+const gTop3=calcTop3(G);
+const eTop3=calcTop3(E);
+
+function getTop3Pos(rank,lang,top3){const a=top3[lang];return a?a.indexOf(rank):-1}
+
+function fmtTime(m){
+  if(!m||m<1)return '< 1m';
+  if(m<60)return m+'m';
+  const d=Math.floor(m/1440),h=Math.floor((m%1440)/60),mn=m%60;
+  if(d>0)return d+'d '+(h>0?h+'h':'');
+  return h+'h'+(mn>0?' '+mn+'m':'');
+}
+
+let src='g',sortKey='rank',sortDir=1,activeLang=null,isDark=true;
+
+function setSource(s){
+  src=s;
+  activeLang=null;
+  document.querySelectorAll('.legend-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('btn-g').className='src-btn'+(s==='g'?' active-g':'');
+  document.getElementById('btn-e').className='src-btn'+(s==='e'?' active-e':'');
+  const rtBtn=document.getElementById('btn-rt');
+  const rtTh=document.getElementById('th-rt');
+  if(s==='e'){rtBtn.style.display='';rtTh.style.display='';}
+  else{rtBtn.style.display='none';rtTh.style.display='none';if(sortKey==='rt'){sortKey='rank';sortDir=1;}}
+  const sub=document.getElementById('subtitle');
+  if(s==='g')sub.textContent='The Guardian 2026 · 100 libros · 172 expertos';
+  else sub.textContent='The Economist · 500 libros · Los más recomendados';
+  buildLegend(s==='g'?G:E);
+  render();
+}
+
+function setSort(key){
+  if(sortKey===key)sortDir*=-1;else{sortKey=key;sortDir=1;}
+  document.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));
+  const map={rank:'btn-rank',rating:'btn-rating',title:'btn-title',lang:'btn-lang',rt:'btn-rt'};
+  if(map[key])document.getElementById(map[key]).classList.add('active');
+  document.querySelectorAll('thead th').forEach(th=>th.classList.remove('sorted'));
+  render();
+}
+
+function toggleLang(lk){
+  activeLang=activeLang===lk?null:lk;
+  document.querySelectorAll('.legend-item').forEach(el=>el.classList.remove('active'));
+  if(activeLang)document.querySelector(`.legend-item[data-lang="${activeLang}"]`).classList.add('active');
+  render();
+}
+
+function toggleTheme(){
+  isDark=!isDark;
+  document.body.classList.toggle('dark',isDark);
+  document.body.classList.toggle('light',!isDark);
+  document.getElementById('t-icon').textContent=isDark?'☀️':'🌙';
+  document.getElementById('t-label').textContent=isDark?'Claro':'Oscuro';
+}
+
+function buildLegend(data){
+  const counts={};
+  data.forEach(b=>{counts[b[4]]=(counts[b[4]]||0)+1;});
+  document.getElementById('legend').innerHTML=
+    Object.entries(LANGS)
+      .filter(([lk])=>counts[lk]>0)
+      .map(([lk,lv])=>`<div class="legend-item" data-lang="${lk}" onclick="toggleLang('${lk}')">
+        <div class="dot" style="background:${lv.color}"></div>${lv.label}<span style="opacity:.4;margin-left:2px">(${counts[lk]||0})</span></div>`)
+      .join('')+`<span class="legend-hint">Clic para filtrar</span>`;
+}
+
+function render(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const data=(src==='g'?G:E).map(b=>({
+    rank:b[0],title:b[1],author:b[2],rating:b[3],lang:b[4],rt:b[5]||0
+  }));
+  const top3=src==='g'?gTop3:eTop3;
+
+  let rows=data.filter(b=>
+    (!q||(b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q)))&&
+    (!activeLang||b.lang===activeLang)
+  );
+
+  rows.sort((a,b)=>{
+    let av=a[sortKey],bv=b[sortKey];
+    if(sortKey==='title'||sortKey==='lang')return av.localeCompare(bv)*sortDir;
+    return(av-bv)*sortDir;
+  });
+
+  document.getElementById('count').textContent=rows.length+' título'+(rows.length!==1?'s':'');
+  document.getElementById('no-results').style.display=rows.length?'none':'block';
+
+  const showTime=src==='e';
+  const tbody=document.getElementById('tbody');
+  if(!rows.length){tbody.innerHTML='';return;}
+
+  tbody.innerHTML=rows.map(b=>{
+    const lc=LANGS[b.lang].color;
+    const t3=getTop3Pos(b.rank,b.lang,top3);
+    const isTop3=t3>=0;
+    const rankClass=b.rank<=10?'t10':b.rank<=25?'t25':'';
+    const rowClass=isTop3?'top3-row':'';
+    const barW=Math.round(((b.rating-3.0)/2.0)*100);
+    const badge=isTop3?`<span class="badge" style="background:${lc}22;color:${lc};border:1px solid ${lc}44">${MEDALS[t3]} #${t3+1} ${LANGS[b.lang].label}</span>`:'';
+    const bothBadge=inBoth(b.title)?'<span class="both-badge">📚 Ambas</span>':'';
+    const rtCell=showTime?`<td class="rt right">${fmtTime(b.rt)}</td>`:'';
+    return `<tr class="${rowClass}" style="--lc:${lc}">
+      <td class="rank ${rankClass}">${b.rank}</td>
+      <td><div class="t-title">${b.title}${badge}${bothBadge}</div><div class="t-author">${b.author}</div></td>
+      <td class="right"><span class="lang-tag" style="background:${lc}18;color:${lc};border:1px solid ${lc}33">${LANGS[b.lang].label}</span></td>
+      <td class="right"><div class="gr-wrap"><span class="gr-num">${b.rating.toFixed(2)}</span><div class="bar-bg"><div class="bar-fill" style="width:${barW}%;background:linear-gradient(90deg,${lc}88,${lc})"></div></div></div></td>
+      ${rtCell}
+    </tr>`;
+  }).join('');
+}
+
+// Init
+buildLegend(G);
+document.getElementById('btn-rank').classList.add('active');
+render();
+</script>
+</body>
+</html>
