@@ -40,6 +40,7 @@ Este es el caso de uso principal. Son dos archivos y **no hay que tocar código*
 | `lang`      | etiqueta de idioma, con filtro en la leyenda   |
 | `year`      | año de publicación                             |
 | `rating`    | nota de Goodreads con barra                    |
+| `country`   | nacionalidad del autor                         |
 | `readMins`  | tiempo estimado de lectura                     |
 
 **Cada lista lleva solo las columnas que tenga.** El Guardian no trae tiempo de
@@ -64,6 +65,10 @@ Con eso ya aparece en el home, en el menú y en el cálculo del consenso.
 Los `bookId` apuntan a `data/books.json`, la base común. El formato del id es
 `titulo-en-kebab-case--apellido`. Si el libro ya está en otra lista, **reutiliza su
 id**: así es como el sitio sabe que es el mismo libro y calcula el consenso.
+
+Cuando dos fuentes titulan la misma obra distinto ("Rainbow" y "The Rainbow"), la
+equivalencia se declara en `data/book-aliases.json` y los importadores la respetan.
+Es lo que evita que se cuelen libros duplicados.
 
 Para los libros nuevos, agrégalos a `data/books.json` con título, autor, idioma y
 Goodreads, y deja `year` y `coverId` en `null`. Luego:
@@ -104,6 +109,7 @@ data/lists.json          índice de listas
 data/lists/*.json        una lista por archivo (puesto + campos propios)
 data/books.json          base común de libros únicos
 data/year-overrides.json correcciones de año revisadas a mano
+data/book-aliases.json   equivalencias entre ids de un mismo libro
 execution/               scripts de mantenimiento de datos
 legacy/                  la versión original de una sola página, como respaldo
 ```
@@ -118,6 +124,7 @@ legacy/                  la versión original de una sola página, como respaldo
 | `apply_overrides.mjs`   | aplica las correcciones de año hechas a mano              |
 | `audit_years.mjs`       | señala años sospechosos para revisarlos                   |
 | `check_contrast.mjs`    | valida que la paleta cumpla WCAG AA en ambos temas        |
+| `import_greatestbooks.mjs` | importa el ranking de thegreatestbooks.org             |
 | `extract_lists.mjs`     | migración inicial desde el `index.html` viejo (histórico) |
 
 Todos se ejecutan desde la raíz del proyecto y guardan caché en `.tmp/`, que no se
@@ -131,5 +138,21 @@ sube al repositorio.
 - **Portadas**: Open Library (se guarda solo el id; las imágenes se cargan de su CDN).
 - **Goodreads**: la nota viene de las listas originales; el enlace es una búsqueda.
 
-De 514 libros, 510 tienen año. Los 4 restantes son antologías sin un año único
-(*Collected Poems*, *The Complete Works of Plato*), y se muestran con "—".
+De 601 libros, 597 tienen año y 545 tienen portada. Los 4 sin año son antologías
+sin un año único (*Collected Poems*, *The Complete Works of Plato*), y se muestran
+con "—". Los libros que solo aparecen en The Greatest Books no traen nota de
+Goodreads, porque esa fuente no la publica.
+
+## Listas actuales
+
+| lista | libros | fuente |
+|-------|--------|--------|
+| Las 100 mejores novelas | 100 | The Guardian, 2026 |
+| Las 500 novelas más recomendadas | 500 | The Economist, 2024 |
+| Los mejores libros de todos los tiempos | 500 | The Greatest Books, 2026 |
+
+415 libros aparecen en más de una lista. Para volver a importar la tercera:
+
+```bash
+node execution/import_greatestbooks.mjs 500
+```

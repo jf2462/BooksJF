@@ -1,0 +1,10 @@
+{
+  "_nota": "Equivalencias entre ids. La clave es el id que GENERARÍA una lista al importar; el valor es el id canónico que ya existe en books.json. Sirve cuando dos fuentes titulan la misma obra distinto ('Rainbow' vs 'The Rainbow', 'Tristram Shandy' vs su título completo). Sin esto se crearían libros duplicados y el consenso contaría mal. Los scripts de importación consultan este archivo antes de dar de alta un libro nuevo.",
+
+  "the-life-and-opinions-of-tristram-shandy--sterne": "tristram-shandy--sterne",
+  "the-complete-tales-and-poems-of-edgar-allan-poe--poe": "complete-tales-and-poems-of-edgar-allan-poe--poe",
+  "household-tales--grimm": "children-s-and-household-tales--grimm",
+  "franz-kafka--kafka": "franz-kafka-the-complete-stories--kafka",
+  "the-general-theory-of-employment-interest-and-money--keynes": "the-general-theory-of-employment--keynes",
+  "rainbow--lawrence": "the-rainbow--lawrence"
+}

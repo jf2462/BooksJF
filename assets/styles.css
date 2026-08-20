@@ -207,7 +207,7 @@ td { padding: 10px 12px; vertical-align: middle; }
   .hero { padding: 34px 0 24px; }
   .hero h1 { font-size: 27px; }
   .bar-row { grid-template-columns: 88px 1fr 30px; }
-  th.lang, td.lang, th.rtime, td.rtime { display: none; }
+  th.lang, td.lang, th.rtime, td.rtime, th.country, td.country { display: none; }
   .search-box { width: 100%; }
   .count { margin-left: 0; }
   /* La columna de título es estrecha en móvil: la insignia de "en N listas"

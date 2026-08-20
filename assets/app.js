@@ -17,6 +17,24 @@ const IDIOMAS = {
 };
 const MEDALLAS = ['🥇', '🥈', '🥉'];
 
+// Nacionalidades tal como las escribe The Greatest Books. Si aparece una que no
+// esté aquí se muestra el valor original, así que la lista puede crecer sin prisa.
+const PAISES = {
+  American: 'Estadounidense', British: 'Británica', English: 'Inglesa',
+  Scottish: 'Escocesa', 'British, Scottish': 'Británica', Irish: 'Irlandesa',
+  French: 'Francesa', German: 'Alemana', Austrian: 'Austriaca', Swiss: 'Suiza',
+  Russian: 'Rusa', Italian: 'Italiana', Greek: 'Griega', Roman: 'Romana',
+  Czech: 'Checa', Polish: 'Polaca', Hungarian: 'Húngara', Bulgarian: 'Búlgara',
+  Bosnian: 'Bosnia', Portuguese: 'Portuguesa', Spanish: 'Española',
+  Dutch: 'Neerlandesa', Danish: 'Danesa', Norwegian: 'Noruega', Swedish: 'Sueca',
+  Icelandic: 'Islandesa', Indian: 'India', Chinese: 'China', Japanese: 'Japonesa',
+  Arabic: 'Árabe', Nigerian: 'Nigeriana', 'South African': 'Sudafricana',
+  Canadian: 'Canadiense', Australian: 'Australiana', Mexican: 'Mexicana',
+  Colombian: 'Colombiana', Argentinian: 'Argentina', Chilean: 'Chilena',
+  Brazilian: 'Brasileña', Dominican: 'Dominicana', Trinidadian: 'Trinitense',
+  Jewish: 'Judía', Multiple: 'Varias',
+};
+
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const colorIdioma = lk => `var(--lang-${lk in IDIOMAS ? lk : 'ot'})`;
@@ -96,6 +114,13 @@ const COLUMNS = {
   year: {
     label: 'Año', clase: 'right', ordenar: f => f.libro.year ?? 9999,
     celda: f => `<td class="right rt">${fmtAnio(f.libro)}</td>`,
+  },
+  // Nacionalidad del autor. Solo la trae The Greatest Books, así que muchos
+  // libros la tienen vacía; se guarda en el libro para que cualquier lista
+  // futura pueda mostrarla.
+  country: {
+    label: 'Origen', clase: 'country right', ordenar: f => f.libro.country || 'zz',
+    celda: f => `<td class="country right rt">${esc(PAISES[f.libro.country] || f.libro.country || '—')}</td>`,
   },
   readMins: {
     label: 'Lectura', clase: 'rtime right', ordenar: f => f.readMins ?? 0,
