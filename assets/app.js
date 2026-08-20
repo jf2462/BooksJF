@@ -436,6 +436,30 @@ function pintarNav(ruta) {
   ].map(x => `<a class="btn ${ruta === x.id ? 'active' : ''}" href="${x.href}">${esc(x.label)}</a>`).join('');
 }
 
+/* ---------- Menú de móvil ---------- */
+function cerrarMenu() {
+  document.getElementById('nav').classList.remove('open');
+  document.getElementById('nav-toggle').setAttribute('aria-expanded', 'false');
+}
+
+function activarMenu() {
+  const nav = document.getElementById('nav');
+  const boton = document.getElementById('nav-toggle');
+
+  boton.addEventListener('click', e => {
+    e.stopPropagation(); // si no, el listener del documento lo cerraría al instante
+    const abierto = nav.classList.toggle('open');
+    boton.setAttribute('aria-expanded', String(abierto));
+  });
+
+  // Tocar el mismo enlace en el que ya estás no cambia el hash y no dispara
+  // el router, así que el menú hay que cerrarlo también desde aquí.
+  nav.addEventListener('click', e => { if (e.target.closest('a')) cerrarMenu(); });
+
+  document.addEventListener('click', e => { if (!e.target.closest('.topbar')) cerrarMenu(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarMenu(); });
+}
+
 function router() {
   const hash = location.hash.replace(/^#\/?/, '') || '';
   const app = document.getElementById('app');
@@ -453,6 +477,7 @@ function router() {
     app.innerHTML = vistaHome();
   }
   pintarNav(hash);
+  cerrarMenu();
   window.scrollTo(0, 0);
 }
 
@@ -469,6 +494,8 @@ try { temaGuardado = localStorage.getItem('booksjf-tema') || 'dark'; } catch (e)
 aplicarTema(temaGuardado);
 document.getElementById('theme-btn').addEventListener('click', () =>
   aplicarTema(document.body.className === 'dark' ? 'light' : 'dark'));
+
+activarMenu();
 
 cargar().then(() => {
   window.addEventListener('hashchange', router);
