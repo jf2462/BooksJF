@@ -292,22 +292,29 @@ function graficasHome(libros, anios) {
 }
 
 /* ---------- Vista: consenso ---------- */
-function consensoOrdenado() {
+const consensoEstado = { orden: 'promedio' };
+
+function consensoOrdenado(orden = consensoEstado.orden) {
   const out = [];
   for (const [bookId, apariciones] of D.porLibro) {
     if (apariciones.length < 2) continue;
     const libro = D.libros.get(bookId);
     if (!libro) continue;
-    // Ordenamos por número de listas y, a igualdad, por la suma de posiciones:
-    // aparecer en más rankings pesa más que ir muy alto en uno solo.
+    const suma = apariciones.reduce((s, a) => s + a.rank, 0);
     out.push({
       libro, apariciones,
       enListas: apariciones.length,
-      suma: apariciones.reduce((s, a) => s + a.rank, 0),
+      suma,
+      promedio: suma / apariciones.length,
       mejor: Math.min(...apariciones.map(a => a.rank)),
     });
   }
-  return out.sort((a, b) => b.enListas - a.enListas || a.suma - b.suma);
+  // Por promedio: el puesto medio, de menor a mayor. A igualdad gana el que
+  // esté en más listas, porque promediar dos puestos es menos exigente que tres.
+  // Por listas: aparecer en más rankings manda, y el promedio desempata.
+  return orden === 'listas'
+    ? out.sort((a, b) => b.enListas - a.enListas || a.promedio - b.promedio)
+    : out.sort((a, b) => a.promedio - b.promedio || b.enListas - a.enListas);
 }
 
 function vistaConsenso() {
@@ -328,6 +335,8 @@ function vistaConsenso() {
       </td>
       <td class="lang right"><span class="lang-tag" style="color:${col};border:1px solid ${col}">${esc(IDIOMAS[b.lang] || b.lang)}</span></td>
       ${celdas}
+      <td class="right rt listas">${c.enListas}</td>
+      <td class="right"><span class="gr-num">${c.promedio.toFixed(1)}</span></td>
     </tr>`;
   }).join('');
 
@@ -337,16 +346,32 @@ function vistaConsenso() {
       <h1>Consenso</h1>
       <p class="sub">${datos.length} libros en más de una lista</p>
     </div>
-    <p style="color:var(--text-2);max-width:640px;margin-bottom:18px">
-      Ordenados por cuántos rankings los incluyen y, a igualdad, por la suma de sus
-      posiciones. Las columnas de la derecha muestran el puesto en cada lista:
-      ahí se ven los desacuerdos.
+    <p style="color:var(--text-2);max-width:660px;margin-bottom:18px">
+      Las columnas del centro muestran el puesto en cada lista: ahí se ven los
+      desacuerdos. <strong>Promedio</strong> es el puesto medio entre las listas
+      donde aparece; <strong>Listas</strong>, en cuántas está. Clic en cualquiera
+      de las dos para reordenar. Ojo: promediar dos puestos es más fácil que tres,
+      así que un libro en dos listas puede quedar por encima de uno que está en las tres.
     </p>
     <table>
-      <thead><tr><th>#</th><th>Título / Autor</th><th class="lang right">Idioma</th>${cabeceras}</tr></thead>
+      <thead><tr>
+        <th>#</th><th>Título / Autor</th><th class="lang right">Idioma</th>${cabeceras}
+        <th class="right listas ${consensoEstado.orden === 'listas' ? 'sorted' : ''}" data-consenso="listas">Listas</th>
+        <th class="right ${consensoEstado.orden === 'promedio' ? 'sorted' : ''}" data-consenso="promedio">Promedio</th>
+      </tr></thead>
       <tbody>${filas}</tbody>
     </table>
   </div>`;
+}
+
+function activarConsenso() {
+  document.querySelectorAll('[data-consenso]').forEach(th => {
+    th.addEventListener('click', () => {
+      consensoEstado.orden = th.dataset.consenso;
+      document.getElementById('app').innerHTML = vistaConsenso();
+      activarConsenso();
+    });
+  });
 }
 
 /* ---------- Vista: lista ---------- */
@@ -498,6 +523,7 @@ function router() {
     if (lista) activarLista(lista);
   } else if (hash === 'consenso') {
     app.innerHTML = vistaConsenso();
+    activarConsenso();
   } else {
     app.innerHTML = vistaHome();
   }
