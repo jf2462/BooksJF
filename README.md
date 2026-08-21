@@ -68,7 +68,14 @@ id**: así es como el sitio sabe que es el mismo libro y calcula el consenso.
 
 Cuando dos fuentes titulan la misma obra distinto ("Rainbow" y "The Rainbow"), la
 equivalencia se declara en `data/book-aliases.json` y los importadores la respetan.
-Es lo que evita que se cuelen libros duplicados.
+Es lo que evita que se cuelen libros duplicados. Si alguno ya se coló, se declara
+el alias y se corre:
+
+```bash
+node execution/apply_aliases.mjs
+```
+
+que funde el duplicado en el canónico y reescribe las referencias de todas las listas.
 
 Para los libros nuevos, agrégalos a `data/books.json` con título, autor, idioma y
 Goodreads, y deja `year` y `coverId` en `null`. Luego:
@@ -122,6 +129,7 @@ legacy/                  la versión original de una sola página, como respaldo
 | `enrich_years.mjs`      | busca el año de publicación en Wikidata                   |
 | `enrich_books.mjs`      | busca portadas en Open Library                            |
 | `apply_overrides.mjs`   | aplica las correcciones de año hechas a mano              |
+| `apply_aliases.mjs`     | funde los libros duplicados declarados en book-aliases    |
 | `audit_years.mjs`       | señala años sospechosos para revisarlos                   |
 | `check_contrast.mjs`    | valida que la paleta cumpla WCAG AA en ambos temas        |
 | `import_greatestbooks.mjs` | importa el ranking de thegreatestbooks.org             |
@@ -138,7 +146,7 @@ sube al repositorio.
 - **Portadas**: Open Library (se guarda solo el id; las imágenes se cargan de su CDN).
 - **Goodreads**: la nota viene de las listas originales; el enlace es una búsqueda.
 
-De 601 libros, 597 tienen año y 545 tienen portada. Los 4 sin año son antologías
+De 596 libros, 592 tienen año y 545 tienen portada. Los 4 sin año son antologías
 sin un año único (*Collected Poems*, *The Complete Works of Plato*), y se muestran
 con "—". Los libros que solo aparecen en The Greatest Books no traen nota de
 Goodreads, porque esa fuente no la publica.
@@ -151,7 +159,8 @@ Goodreads, porque esa fuente no la publica.
 | Las 500 novelas más recomendadas | 500 | The Economist, 2024 |
 | Los mejores libros de todos los tiempos | 500 | The Greatest Books, 2026 |
 
-415 libros aparecen en más de una lista. Para volver a importar la tercera:
+420 libros aparecen en más de una lista (84 en las tres). La vista de consenso
+permite filtrar por esa cantidad y recalcula el promedio de puestos con cada filtro. Para volver a importar la tercera:
 
 ```bash
 node execution/import_greatestbooks.mjs 500

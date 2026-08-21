@@ -32,6 +32,12 @@ const slug = s => norm(s).replace(/\s+/g, '-');
 const lastName = a => { const p = norm(a).split(' '); return p[p.length - 1]; };
 const bookId = (t, a) => `${slug(t)}--${slug(lastName(a))}`;
 
+// Cada fuente escribe el anonimato a su manera: las listas viejas usan "-" y
+// The Greatest Books "Unknown". Sin unificarlo se crean libros duplicados
+// (la Biblia salía dos veces, como `the-bible--` y `the-bible--unknown`).
+const ANONIMO = /^(-|unknown|anonymous|anon\.?|varios|various)$/i;
+const autorCanonico = a => ANONIMO.test(a.trim()) ? '-' : a;
+
 const STOP = new Set(['the', 'a', 'an', 'of', 'and', 'or']);
 const words = s => norm(s).split(' ').filter(w => w && !STOP.has(w));
 
@@ -78,7 +84,7 @@ function parsear(html) {
     if (!title || !author) continue;
     out.push({
       rank: parseInt(rank, 10),
-      title, author,
+      title, author: autorCanonico(author),
       year: /^-?\d+$/.test(year) ? parseInt(year, 10) : null,
       country: country || null,
       lang: codigoIdioma(language),

@@ -241,7 +241,9 @@ function graficasHome(libros, anios) {
   // Graficar "en cuántas listas aparece" no sirve mientras haya pocas listas
   // (todas las barras valdrían lo mismo); la discrepancia sí tiene variación
   // y es lo que de verdad distingue a un ranking de otro.
-  const desacuerdo = consensoOrdenado()
+  // Explícito para que la gráfica del home no cambie según el filtro que el
+  // usuario haya dejado puesto en la vista de consenso.
+  const desacuerdo = consensoOrdenado('promedio', 'multi')
     .map(c => {
       const puestos = c.apariciones.map(a => a.rank);
       return { c, dif: Math.max(...puestos) - Math.min(...puestos) };
@@ -292,12 +294,20 @@ function graficasHome(libros, anios) {
 }
 
 /* ---------- Vista: consenso ---------- */
-const consensoEstado = { orden: 'promedio' };
+// filtro: 'multi' = en 2 o más listas (lo que da sentido a la palabra consenso),
+// 'todos' = la base completa, o un número = exactamente en esas listas.
+const consensoEstado = { orden: 'promedio', filtro: 'multi' };
 
-function consensoOrdenado(orden = consensoEstado.orden) {
+function pasaFiltro(n, filtro = consensoEstado.filtro) {
+  if (filtro === 'multi') return n >= 2;
+  if (filtro === 'todos') return true;
+  return n === filtro;
+}
+
+function consensoOrdenado(orden = consensoEstado.orden, filtro = consensoEstado.filtro) {
   const out = [];
   for (const [bookId, apariciones] of D.porLibro) {
-    if (apariciones.length < 2) continue;
+    if (!pasaFiltro(apariciones.length, filtro)) continue;
     const libro = D.libros.get(bookId);
     if (!libro) continue;
     const suma = apariciones.reduce((s, a) => s + a.rank, 0);
@@ -340,19 +350,41 @@ function vistaConsenso() {
     </tr>`;
   }).join('');
 
+  // Un botón por cada cantidad posible de listas, más los dos agregados.
+  const N = D.listas.length;
+  const opciones = [
+    { v: 'multi', label: 'En 2 o más' },
+    ...Array.from({ length: N }, (_, i) => N - i)
+      .map(n => ({ v: n, label: n === 1 ? 'Solo en 1' : `Solo en ${n}` })),
+    { v: 'todos', label: 'Todos' },
+  ];
+  const botones = opciones.map(o => {
+    const cuantos = [...D.porLibro.values()].filter(a => pasaFiltro(a.length, o.v)).length;
+    const activo = String(consensoEstado.filtro) === String(o.v) ? ' active' : '';
+    return `<button class="btn${activo}" type="button" data-filtro="${o.v}">${esc(o.label)} <span class="n">(${cuantos})</span></button>`;
+  }).join('');
+
+  const descripcion = consensoEstado.filtro === 'multi'
+    ? `${datos.length} libros en más de una lista`
+    : consensoEstado.filtro === 'todos'
+      ? `${datos.length} libros, todas las listas`
+      : `${datos.length} libros solo en ${consensoEstado.filtro} lista${consensoEstado.filtro === 1 ? '' : 's'}`;
+
   return `
   <div class="wrap">
     <div class="list-head">
       <h1>Consenso</h1>
-      <p class="sub">${datos.length} libros en más de una lista</p>
+      <p class="sub">${descripcion}</p>
     </div>
-    <p style="color:var(--text-2);max-width:660px;margin-bottom:18px">
+    <p style="color:var(--text-2);max-width:660px;margin-bottom:14px">
       Las columnas del centro muestran el puesto en cada lista: ahí se ven los
       desacuerdos. <strong>Promedio</strong> es el puesto medio entre las listas
       donde aparece; <strong>Listas</strong>, en cuántas está. Clic en cualquiera
       de las dos para reordenar. Ojo: promediar dos puestos es más fácil que tres,
-      así que un libro en dos listas puede quedar por encima de uno que está en las tres.
+      así que un libro en dos listas puede quedar por encima de uno que está en las tres
+      — filtrando por cantidad de listas se comparan solo entre iguales.
     </p>
+    <div class="controls" style="padding-top:0">${botones}</div>
     <table>
       <thead><tr>
         <th>#</th><th>Título / Autor</th><th class="lang right">Idioma</th>${cabeceras}
@@ -365,11 +397,23 @@ function vistaConsenso() {
 }
 
 function activarConsenso() {
+  const repintar = () => {
+    document.getElementById('app').innerHTML = vistaConsenso();
+    activarConsenso();
+  };
+
   document.querySelectorAll('[data-consenso]').forEach(th => {
     th.addEventListener('click', () => {
       consensoEstado.orden = th.dataset.consenso;
-      document.getElementById('app').innerHTML = vistaConsenso();
-      activarConsenso();
+      repintar();
+    });
+  });
+
+  document.querySelectorAll('[data-filtro]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.dataset.filtro;
+      consensoEstado.filtro = /^\d+$/.test(v) ? Number(v) : v;
+      repintar();
     });
   });
 }

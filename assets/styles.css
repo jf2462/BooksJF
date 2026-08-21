@@ -145,6 +145,8 @@ h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; color: var(--headi
 .legend-item.active { border-color: var(--accent); color: var(--accent); }
 .legend-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .legend-item .n { color: var(--text-3); }
+.btn .n { color: var(--text-3); }
+.btn.active .n, .btn:hover .n { color: inherit; opacity: .7; }
 .legend-hint { font-size: 10px; color: var(--text-3); margin-left: auto; font-style: italic; }
 
 /* ---------- Tabla ---------- */
